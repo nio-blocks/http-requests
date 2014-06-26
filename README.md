@@ -28,3 +28,7 @@ Any list of signals. No attributes of the signal are used. They simply act as a 
 Output
 ---------
 One output signal is created for each successful http request. The signal contains the *url* that was hit.
+
+Example Usage
+-------------
+**Trigger block commands.** Set the url to `http://{{$host}}:{{$port}}/services/{{$service_name}}/{{$block_name}}/{{$command_name}}` and make sure to set the Basic Authentication for your nio instance. Anytime a signal is input to this block, the command will be called. One use case is to reset a counter block on a given interval.
