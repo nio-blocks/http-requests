@@ -26,7 +26,7 @@ class HTTPRequests(Block):
     """
 
     url = StringProperty(title='URL Target', default="http://127.0.0.1:8181")
-    basic_auth_creds = ObjectProperty(title='Credentials (BasicAuth)', BasicAuthCreds)
+    basic_auth_creds = ObjectProperty(BasicAuthCreds, title='Credentials (BasicAuth)')
 
     def process_signals(self, signals):
         new_signals = []
