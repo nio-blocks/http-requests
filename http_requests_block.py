@@ -10,8 +10,8 @@ import requests
 
 
 class BasicAuthCreds(PropertyHolder):
-    username = StringProperty()
-    password = StringProperty()
+    username = StringProperty(title='Username')
+    password = StringProperty(title='Password')
 
 
 @Discoverable(DiscoverableType.block)
@@ -25,8 +25,8 @@ class HTTPRequests(Block):
 
     """
 
-    url = StringProperty(default="http://127.0.0.1:8181")
-    basic_auth_creds = ObjectProperty(BasicAuthCreds)
+    url = StringProperty(title='URL Target', default="http://127.0.0.1:8181")
+    basic_auth_creds = ObjectProperty(title='Credentials (BasicAuth)', BasicAuthCreds)
 
     def process_signals(self, signals):
         new_signals = []
