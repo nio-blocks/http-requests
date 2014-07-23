@@ -1,5 +1,5 @@
+from ..http_requests_block import HTTPRequests
 from unittest.mock import patch
-from http_requests.http_requests_block import HTTPRequests
 from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
