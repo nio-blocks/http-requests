@@ -8,7 +8,7 @@ One request is made for every input signal. For each successful request, an outp
 Properties
 --------------
 
--   **url**: URL to make request to.
+-   **url**: URL to make request to. Expression property.
 -   **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
 
 

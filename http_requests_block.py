@@ -4,6 +4,7 @@ from nio.common.versioning.dependency import DependsOn
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.metadata.properties.holder import PropertyHolder
 from nio.metadata.properties.string import StringProperty
+from nio.metadata.properties.expression import ExpressionProperty
 from nio.metadata.properties.object import ObjectProperty
 
 import requests
@@ -25,7 +26,7 @@ class HTTPRequests(Block):
 
     """
 
-    url = StringProperty(title='URL Target', default="http://127.0.0.1:8181")
+    url = ExpressionProperty(title='URL Target', default="http://127.0.0.1:8181")
     basic_auth_creds = ObjectProperty(BasicAuthCreds, title='Credentials (BasicAuth)')
 
     def process_signals(self, signals):
@@ -41,14 +42,15 @@ class HTTPRequests(Block):
         try:
             auth = self._create_auth()
             r = self._get(auth, signal)
-            new_signal = Signal()
-            new_signal.url = r.url
-            return new_signal
+            if r.status_code == 200:
+                new_signal = Signal()
+                new_signal.url = r.url
+                return new_signal
         except Exception as e:
             self._logger.warning("Bad Http Request: {0}".format(e))
 
     def _get(self, auth, signal):
-        return requests.get(self.url, auth=auth)
+        return requests.get(self.url(signal), auth=auth)
 
     def _create_auth(self):
         if self.basic_auth_creds.username:
