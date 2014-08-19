@@ -9,7 +9,10 @@ Properties
 --------------
 
 -   **url**: URL to make request to. Expression property.
+-   **http_method**: HTTP Method (ex. GET, POST, PUT, DELETE, etc...).
 -   **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
+-   **data**: URL Parameters. Keys and Values are Expression Properties.
+-   **headers**: Custom Headers.
 
 
 Dependencies
@@ -23,11 +26,18 @@ None
 
 Input
 -------
-Any list of signals. No attributes of the signal are used. They simply act as a trigger to make the request.
+Any list of signals. Signal attributes can be used for *url* and *data*.
 
 Output
 ---------
-One output signal is created for each successful http request. The signal contains the *url* that was hit.
+One output signal is created for each successful http request. The requets Response object is place in the signal. Common attributes on the signal:
+
+-   url
+-   origin
+-   data
+-   json
+-   form
+-   args
 
 Example Usage
 -------------
