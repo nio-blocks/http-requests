@@ -112,7 +112,7 @@ class HTTPRequests(Block):
                 r = self._head(url, auth, payload, headers)
             elif self.http_method == HTTPMethod.OPTIONS:
                 r = self._options(url, auth, payload, headers)
-            if r.status_code == 200:
+            if 200 <= r.status_code < 300:
                 return ResponseSignal(r.json())
             else:
                 self._logger.warning("{} request to {} returned with "
