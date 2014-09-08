@@ -5,10 +5,14 @@ from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
 from nio.modules.threading import Event
 
+
 class EventBlock(HTTPRequests):
+
     def __init__(self, event):
+        super().__init__()
         super().__init()
         self.event = event
+
 
 class TestHTTPRequests(NIOBlockTestCase):
 
