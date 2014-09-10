@@ -10,7 +10,6 @@ class EventBlock(HTTPRequests):
 
     def __init__(self, event):
         super().__init__()
-        super().__init()
         self.event = event
 
 
