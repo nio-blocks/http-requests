@@ -113,18 +113,30 @@ class HTTPRequests(Block):
                 r = self._head(url, auth, payload, headers)
             elif self.http_method == HTTPMethod.OPTIONS:
                 r = self._options(url, auth, payload, headers)
-            if 200 <= r.status_code < 300:
-                return ResponseSignal(r.json())
             else:
-                self._logger.warning("{} request to {} returned with "
-                                     "response code: {}".format(
-                                         self.http_method,
-                                         url,
-                                         r.status_code
-                                     )
-                )
+                # default to GET
+                r = self._get(url, auth, payload, headers)
         except Exception as e:
             self._logger.warning("Bad Http Request: {0}".format(e))
+            return
+        if 200 <= r.status_code < 300:
+            try:
+                sig = ResponseSignal(r.json())
+                return sig
+            except Exception as e:
+                self._logger.warning(
+                    "Request was successfull but "
+                    "failed to create ResponseSignal: {}".format(e)
+                )
+                return
+        else:
+            self._logger.warning("{} request to {} returned with "
+                                    "response code: {}".format(
+                                        self.http_method,
+                                        url,
+                                        r.status_code
+                                    )
+            )
 
     def _get(self, url, auth, payload, headers):
         return requests.get(
