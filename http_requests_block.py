@@ -27,13 +27,6 @@ class Param(PropertyHolder):
     key = ExpressionProperty(title='URL Parameter Key')
     value = ExpressionProperty(title='Value')
 
-
-class Data(PropertyHolder):
-    params = ListProperty(Param, title="Parameters")
-    form_encode_data = BoolProperty(default=False,
-                                    title="Form-Encode Data?")
-
-
 class Header(PropertyHolder):
     header = StringProperty(title='Header')
     value = StringProperty(title='Value')
@@ -67,7 +60,9 @@ class HTTPRequests(Block):
         headers (list(dict)): Custom headers.
 
     """
-
+    params = ListProperty(Param, title="Parameters")
+    form_encode_data = BoolProperty(default=False,
+                                    title="Form-Encode Data?")
     url = ExpressionProperty(title='URL Target',
                              default="http://127.0.0.1:8181")
     basic_auth_creds = ObjectProperty(BasicAuthCreds,
@@ -77,7 +72,6 @@ class HTTPRequests(Block):
         default=HTTPMethod.GET,
         title='HTTP Method'
     )
-    data = ObjectProperty(Data, title="Parameters")
     headers = ListProperty(Header, title="Headers")
 
     def process_signals(self, signals):
@@ -165,7 +159,7 @@ class HTTPRequests(Block):
 
     def _create_payload(self, signal):
         payload = {}
-        for param in self.data.params:
+        for param in self.params:
             try:
                 param_key = param.key(signal)
             except Exception as e:
@@ -176,7 +170,7 @@ class HTTPRequests(Block):
                 param_value = None
             if param_key and param_value:
                 payload[param_key] = param_value
-        if not self.data.form_encode_data:
+        if not self.form_encode_data:
             payload = json.dumps(payload)
         return payload
 
