@@ -83,9 +83,9 @@ class HTTPRequests(Block):
     def process_signals(self, signals):
         new_signals = []
         for signal in signals:
-            new_signal = self._make_request(signal)
-            if new_signal:
-                new_signals.append(new_signal)
+            new_sigs = self._make_request(signal)
+            if new_sigs:
+                new_signals.extend(new_sigs)
         if new_signals:
             self.notify_signals(new_signals)
 
@@ -121,8 +121,19 @@ class HTTPRequests(Block):
             return
         if 200 <= r.status_code < 300:
             try:
-                sig = ResponseSignal(r.json())
-                return sig
+                rjson = r.json()
+                if isinstance(rjson, dict):
+                    sig = ResponseSignal(rjson)
+                    return [sig]
+                if isinstance(rjson, list):
+                    sigs = []
+                    for s in rjson:
+                        sigs.append(ResponseSignal(s))
+                    if sigs:
+                        return sigs
+                self._logger.warning("Request body could not be parsed into "
+                                     "Signal(s): {}".format(rjson))
+                return None
             except Exception as e:
                 self._logger.warning(
                     "Request was successfull but "

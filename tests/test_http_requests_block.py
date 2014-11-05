@@ -46,6 +46,29 @@ class TestHTTPRequests(NIOBlockTestCase):
         self.assertEqual(self.last_notified[0].url, url)
         block.stop()
 
+    def test_get_with_list_response_body(self):
+        url = "http://httpbin.org/get"
+        url2 = "http://httpbin.org/get2"
+        block = HTTPRequests()
+        # fake a response object from get request
+        class Resp(object):
+            def __init__(self, status_code):
+                self.status_code = status_code
+            def json(self):
+                # a signal will be notified with this response body
+                return [{'url': url}, {'url': url2}]
+        block._get = MagicMock(return_value=Resp(200))
+        config = {
+            "url": url
+        }
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal()])
+        self.assertTrue(block._get.called)
+        self.assertEqual(self.last_notified[0].url, url)
+        self.assertEqual(self.last_notified[1].url, url2)
+        block.stop()
+
     def test_get_no_response_body(self):
         url = "http://httpbin.org/get"
         block = HTTPRequests()
