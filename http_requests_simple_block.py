@@ -55,7 +55,7 @@ class HTTPMethod(Enum):
 
 
 @Discoverable(DiscoverableType.block)
-class HTTPRequests(Block):
+class HTTPRequestsSimple(Block):
 
     """ A Block that makes HTTP Requests.
 
