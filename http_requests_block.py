@@ -7,7 +7,7 @@ from nio.metadata.properties.list import ListProperty
 
 import json
 
-from .http_requests_post_signal_block import HTTPRequestsSimple
+from .http_requests_post_signal_block import HTTPRequestsPostSignal
 
 
 class Param(PropertyHolder):
@@ -22,7 +22,7 @@ class Data(PropertyHolder):
 
 
 @Discoverable(DiscoverableType.block)
-class HTTPRequests(HTTPRequestsSimple):
+class HTTPRequests(HTTPRequestsPostSignal):
 
     """ A Block that makes HTTP Requests.
 

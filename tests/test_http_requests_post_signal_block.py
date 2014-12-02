@@ -4,7 +4,7 @@ from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
 from nio.modules.threading import Event
 
-from ..http_requests_post_signal_block import HTTPRequestsSimple
+from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 
 
 def create_signal(val1='value1', val2='value2'):
@@ -18,7 +18,7 @@ def create_signal(val1='value1', val2='value2'):
 
 
 class TestHTTPRequestsSimple(NIOBlockTestCase):
-    BLOCK = HTTPRequestsSimple
+    BLOCK = HTTPRequestsPostSignal
 
     def setUp(self):
         super().setUp()
