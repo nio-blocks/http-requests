@@ -7,7 +7,7 @@ from nio.metadata.properties.list import ListProperty
 
 import json
 
-from .http_requests_simple_block import HTTPRequestsSimple
+from .http_requests_post_signal_block import HTTPRequestsSimple
 
 
 class Param(PropertyHolder):
