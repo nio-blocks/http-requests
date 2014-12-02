@@ -17,7 +17,7 @@ def create_signal(val1='value1', val2='value2'):
 #         self.event = event
 
 
-class TestHTTPRequestsSimple(NIOBlockTestCase):
+class TestHTTPRequestsPostSignal(NIOBlockTestCase):
     BLOCK = HTTPRequestsPostSignal
 
     def setUp(self):
@@ -42,6 +42,7 @@ class TestHTTPRequestsSimple(NIOBlockTestCase):
                 return {'url': url}
         block._get = MagicMock(return_value=Resp(200))
         config = {
+            "http_method": "GET",
             "url": url
         }
         self.configure_block(block, config)
@@ -64,6 +65,7 @@ class TestHTTPRequestsSimple(NIOBlockTestCase):
                 return [{'url': url}, {'url': url2}]
         block._get = MagicMock(return_value=Resp(200))
         config = {
+            "http_method": "GET",
             "url": url
         }
         self.configure_block(block, config)
@@ -86,6 +88,7 @@ class TestHTTPRequestsSimple(NIOBlockTestCase):
                 raise Exception('bad json')
         block._get = MagicMock(return_value=Resp(200))
         config = {
+            "http_method": "GET",
             "url": url
         }
         self.configure_block(block, config)
@@ -110,6 +113,7 @@ class TestHTTPRequestsSimple(NIOBlockTestCase):
         # get request will return 400
         block._get = MagicMock(return_value=Resp(400))
         config = {
+            "http_method": "GET",
             "url": url
         }
         self.configure_block(block, config)
@@ -128,8 +132,8 @@ class TestHTTPRequestsSimple(NIOBlockTestCase):
         url = "http://httpbin.org/post"
         block = self.BLOCK()
         config = {
-            "url": url,
             "http_method": "POST",
+            "url": url,
         }
         self.configure_block(block, config)
         block.start()

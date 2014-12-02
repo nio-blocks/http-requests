@@ -1,10 +1,10 @@
 from nio.common.signal.base import Signal
 
 from ..http_requests_block import HTTPRequests
-from .test_http_requests_post_signal_block import TestHTTPRequestsSimple
+from .test_http_requests_post_signal_block import TestHTTPRequestsPostSignal
 
 
-class TestHTTPRequests(TestHTTPRequestsSimple):
+class TestHTTPRequests(TestHTTPRequestsPostSignal):
     BLOCK = HTTPRequests
 
     def test_post(self):

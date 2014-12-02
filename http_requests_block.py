@@ -7,7 +7,9 @@ from nio.metadata.properties.list import ListProperty
 
 import json
 
-from .http_requests_post_signal_block import HTTPRequestsPostSignal
+from .http_requests_post_signal_block import (HTTPRequestsPostSignal,
+                                              SelectProperty,
+                                              HTTPMethod)
 
 
 class Param(PropertyHolder):
@@ -38,6 +40,11 @@ class HTTPRequests(HTTPRequestsPostSignal):
 
     data = ObjectProperty(Data, title="Parameters")
 
+    http_method = SelectProperty(
+        HTTPMethod,
+        default=HTTPMethod.GET,
+        title='HTTP Method'
+    )
     def _create_payload(self, signal):
         payload = {}
         for param in self.data.params:

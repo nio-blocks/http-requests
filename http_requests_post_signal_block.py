@@ -72,7 +72,7 @@ class HTTPRequestsPostSignal(Block):
                                       title='Credentials (BasicAuth)')
     http_method = SelectProperty(
         HTTPMethod,
-        default=HTTPMethod.GET,
+        default=HTTPMethod.POST,
         title='HTTP Method'
     )
     headers = ListProperty(Header, title="Headers")
