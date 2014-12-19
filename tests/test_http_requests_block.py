@@ -29,6 +29,28 @@ class TestHTTPRequests(TestHTTPRequestsPostSignal):
         self.assertEqual('value2', self.last_notified[0].json['key2'])
         block.stop()
 
+    def test_post2(self):
+        url = "http://httpbin.org/post"
+        block = self.BLOCK()
+        config = {
+            "url": url,
+            "http_method": "POST",
+            "data": {
+                "params": [
+                    {"key": "string", "value": "text"},
+                    {"key": "int", "value": "{{int(1)}}"}
+                ]
+            }
+        }
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal()])
+        self.event.wait(2)
+        self.assertEqual(url, self.last_notified[0].url)
+        self.assertEqual('text', self.last_notified[0].json['string'])
+        self.assertEqual(1, self.last_notified[0].json['int'])
+        block.stop()
+
     def test_post_form(self):
         url = "http://httpbin.org/post"
         block = self.BLOCK()

@@ -3,18 +3,11 @@ from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
 from nio.modules.threading import Event
-
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 
 
 def create_signal(val1='value1', val2='value2'):
     return Signal({'key1': val1, 'key2': val2})
-
-
-# class EventBlock(HTTPRequests):
-#     def __init__(self, event):
-#         super().__init__()
-#         self.event = event
 
 
 class TestHTTPRequestsPostSignal(NIOBlockTestCase):
@@ -140,8 +133,22 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.process_signals([create_signal()])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[0].url)
-        print()
-        print(self.last_notified[0].json)
         self.assertEqual('value1', self.last_notified[0].json['key1'])
         self.assertEqual('value2', self.last_notified[0].json['key2'])
+        block.stop()
+
+    def test_post2(self):
+        url = "http://httpbin.org/post"
+        block = self.BLOCK()
+        config = {
+            "http_method": "POST",
+            "url": url,
+        }
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal({'string': 'text', 'int': 1})])
+        self.event.wait(2)
+        self.assertEqual(url, self.last_notified[0].url)
+        self.assertEqual('text', self.last_notified[0].json['string'])
+        self.assertEqual(1, self.last_notified[0].json['int'])
         block.stop()

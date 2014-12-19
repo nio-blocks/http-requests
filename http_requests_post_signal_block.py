@@ -1,4 +1,3 @@
-
 from nio.common.block.base import Block
 from nio.common.signal.base import Signal
 from nio.common.versioning.dependency import DependsOn
@@ -10,7 +9,6 @@ from nio.metadata.properties.expression import ExpressionProperty
 from nio.metadata.properties.object import ObjectProperty
 from nio.metadata.properties.bool import BoolProperty
 from nio.metadata.properties.list import ListProperty
-
 from enum import Enum
 import requests
 import json
