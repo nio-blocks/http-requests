@@ -18,7 +18,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         self.last_notified = []
         self.event = Event()
 
-    def signals_notified(self, signals):
+    def signals_notified(self, signals, output_id='default'):
         self.last_notified = signals
         self.event.set()
         self.event.clear()
