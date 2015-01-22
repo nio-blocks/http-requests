@@ -4,6 +4,7 @@ from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
 from nio.modules.threading import Event
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
+from simplejson.scanner import JSONDecodeError
 
 
 def create_signal(val1='value1', val2='value2'):
@@ -43,6 +44,53 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.assertTrue(block._get.called)
         self.assertEqual(self.last_notified[0].url, url)
+        block.stop()
+
+    def test_get_with_non_json_resp(self):
+        url = "http://httpbin.org/get"
+        block = self.BLOCK()
+        # fake a response object from get request
+        class Resp(object):
+            def __init__(self, status_code):
+                self.status_code = status_code
+                self.text = 'not json'
+            def json(self):
+                # a signal will be notified with this response body
+                raise JSONDecodeError('fail', 'data', 1)
+        block._get = MagicMock(return_value=Resp(200))
+        config = {
+            "log_level": "WARNING",
+            "http_method": "GET",
+            "url": url
+        }
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal()])
+        self.assertTrue(block._get.called)
+        self.assertEqual(self.last_notified[0].raw, 'not json')
+        block.stop()
+        
+    def test_get_with_non_json_resp_fail(self):
+        url = "http://httpbin.org/get"
+        block = self.BLOCK()
+        # fake a response object from get request
+        class Resp(object):
+            def __init__(self, status_code):
+                self.status_code = status_code
+            def json(self):
+                # a signal will be notified with this response body
+                raise JSONDecodeError
+        block._get = MagicMock(return_value=Resp(200))
+        config = {
+            "http_method": "GET",
+            "url": url,
+            "require_json": True
+        }
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal()])
+        self.assertTrue(block._get.called)
+        self.assertEqual(self.last_notified, [])
         block.stop()
 
     def test_get_with_list_response_body(self):
@@ -91,7 +139,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         self.assertTrue(block._get.called)
         self.assertEqual(self.last_notified, [])
         block._logger.warning.assert_called_once_with(
-            'Request was successfull but '
+            'Request was successful but '
             'failed to create ResponseSignal: bad json'
         )
         block.stop()
