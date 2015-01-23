@@ -15,6 +15,16 @@ import json
 from simplejson.scanner import JSONDecodeError
 
 
+HTTP_METHODS = [
+    'get',
+    'post',
+    'put',
+    'delete',
+    'head',
+    'options'
+]
+
+
 class ResponseSignal(Signal):
 
     def __init__(self, data):
@@ -97,54 +107,15 @@ class HTTPRequestsPostSignal(Block):
         auth = self._create_auth()
         payload = self._create_payload(signal)
         headers = self._create_headers(signal)
+        
         try:
-            if self.http_method == HTTPMethod.GET:
-                r = self._get(url, auth, payload, headers)
-            elif self.http_method == HTTPMethod.POST:
-                r = self._post(url, auth, payload, headers)
-            elif self.http_method == HTTPMethod.PUT:
-                r = self._put(url, auth, payload, headers)
-            elif self.http_method == HTTPMethod.DELETE:
-                r = self._delete(url, auth, payload, headers)
-            elif self.http_method == HTTPMethod.HEAD:
-                r = self._head(url, auth, payload, headers)
-            elif self.http_method == HTTPMethod.OPTIONS:
-                r = self._options(url, auth, payload, headers)
-            else:
-                # default to GET
-                r = self._get(url, auth, payload, headers)
+            r = self._execute_request(url, auth, payload, headers)
         except Exception as e:
             self._logger.warning("Bad Http Request: {0}".format(e))
             return
+        
         if 200 <= r.status_code < 300:
-            result = None
-            try:
-                rjson = r.json()
-                if isinstance(rjson, dict):
-                    result = [ResponseSignal(rjson)]
-                if isinstance(rjson, list):
-                    sigs = []
-                    for s in rjson:
-                        sigs.append(ResponseSignal(s))
-                    if sigs:
-                        result = sigs
-                self._logger.warning("Request body could not be parsed into "
-                                     "Signal(s): {}".format(rjson))
-            except JSONDecodeError:
-                if not self.require_json:
-                    result = [ResponseSignal({'raw': r.text})]
-                else:
-                    self._logger.warning(
-                        "Request was successful, but response was not "
-                        "valid JSON. No ResponseSignal was created."
-                    )
-            except Exception as e:
-                self._logger.warning(
-                    "Request was successful but "
-                    "failed to create ResponseSignal: {}".format(e)
-                )
-            finally:
-                return result
+            return self._process_response(r)
         else:
             self._logger.warning(
                 "{} request to {} returned with response code: {}".format(
@@ -154,36 +125,59 @@ class HTTPRequestsPostSignal(Block):
                 )
             )
 
-    def _get(self, url, auth, payload, headers):
-        return requests.get(
-            url, auth=auth, data=payload, headers=headers
-        )
+    def _execute_request(self, url, auth, data, headers):
+        try:
+            method_idx = self.http_method.value
+        except:
+            method_idx = HTTPMethod.GET.value
+            self._logger.debug(
+                "Invalid HTTP method selection. Defaulting to GET."
+            )
+        finally:
+            method = getattr(requests, HTTP_METHODS[method_idx])
 
-    def _post(self, url, auth, payload, headers):
-        return requests.post(
-            url, auth=auth, data=payload, headers=headers
-        )
+        return method(url, auth=auth, data=data, headers=headers)
 
-    def _put(self, url, auth, payload, headers):
-        return requests.put(
-            url, auth=auth, data=payload, headers=headers
-        )
 
-    def _delete(self, url, auth, payload, headers):
-        return requests.delete(
-            url, auth=auth, data=payload, headers=headers
-        )
+    def _process_response(self, response):
+        result = None
+        try:
+            data = response.json()
 
-    def _head(self, url, auth, payload, headers):
-        return requests.head(
-            url, auth=auth, data=payload, headers=headers
-        )
+            # if the response is a dictionary, build a signal
+            if isinstance(data, dict):
+                result = [ResponseSignal(data)]
 
-    def _options(self, url, auth, payload, headers):
-        return requests.options(
-            url, auth=auth, data=payload, headers=headers
-        )
+            # if the response is a list, build a signal for each element
+            elif isinstance(data, list):
+                sigs = []
+                for s in data:
+                    sigs.append(ResponseSignal(s))
+                if sigs:
+                    result = sigs
 
+            # otherwise, no dice on parsing the response body
+            else:
+                self._logger.warning("Response body could not be parsed into "
+                                     "Signal(s): {}".format(data))
+        except JSONDecodeError:
+            if not self.require_json:
+                result = [ResponseSignal({'raw': response.text})]
+            else:
+                self._logger.warning(
+                    "Request was successful, but response was not "
+                    "valid JSON. No ResponseSignal was created."
+                )
+        except Exception as e:
+            self._logger.warning(
+                "Request was successful but "
+                "failed to create ResponseSignal: {}".format(e)
+            )
+        finally:
+            return result
+
+
+            
     def _create_auth(self):
         if self.basic_auth_creds.username:
             return requests.auth.HTTPBasicAuth(

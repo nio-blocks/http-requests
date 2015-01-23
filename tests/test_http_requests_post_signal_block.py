@@ -1,10 +1,11 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
-from unittest.mock import MagicMock
 from nio.modules.threading import Event
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 from simplejson.scanner import JSONDecodeError
+import requests
+from requests import Response
 
 
 def create_signal(val1='value1', val2='value2'):
@@ -24,119 +25,111 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         self.event.set()
         self.event.clear()
 
-    def test_get_with_response_body(self):
+    @patch('requests.get')
+    def test_get_with_response_body(self, mock_get):
         url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-            def json(self):
-                # a signal will be notified with this response body
-                return {'url': url}
-        block._get = MagicMock(return_value=Resp(200))
-        config = {
+        self.configure_block(block, {
             "http_method": "GET",
             "url": url
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified[0].url, url)
         block.stop()
 
-    def test_get_with_non_json_resp(self):
+    @patch('requests.get')
+    def test_get_with_non_json_resp(self, mock_get):
         url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(side_effect=JSONDecodeError('fail', 'data', 1))
+        resp.text = 'not json'
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-                self.text = 'not json'
-            def json(self):
-                # a signal will be notified with this response body
-                raise JSONDecodeError('fail', 'data', 1)
-        block._get = MagicMock(return_value=Resp(200))
-        config = {
+        self.configure_block(block, {
             "log_level": "WARNING",
             "http_method": "GET",
             "url": url
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified[0].raw, 'not json')
         block.stop()
         
-    def test_get_with_non_json_resp_fail(self):
+    @patch('requests.get')
+    def test_get_with_non_json_resp_fail(self, mock_get):
         url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(side_effect=JSONDecodeError('fail', 'data', 1))
+        resp.text = 'not json'
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-            def json(self):
-                # a signal will be notified with this response body
-                raise JSONDecodeError
-        block._get = MagicMock(return_value=Resp(200))
-        config = {
+        self.configure_block(block, {
             "http_method": "GET",
             "url": url,
             "require_json": True
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified, [])
         block.stop()
 
-    def test_get_with_list_response_body(self):
+    @patch('requests.get')
+    def test_get_with_list_response_body(self, mock_get):
         url = "http://httpbin.org/get"
         url2 = "http://httpbin.org/get2"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value=[{'url': url}, {'url': url2}])
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-            def json(self):
-                # a signal will be notified with this response body
-                return [{'url': url}, {'url': url2}]
-        block._get = MagicMock(return_value=Resp(200))
-        config = {
+        self.configure_block(block, {
             "http_method": "GET",
             "url": url
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(requests.get.called)
         self.assertEqual(self.last_notified[0].url, url)
         self.assertEqual(self.last_notified[1].url, url2)
         block.stop()
 
-    def test_get_no_response_body(self):
+    @patch('requests.get')
+    def test_get_no_response_body(self, mock_get):
         url = "http://httpbin.org/get"
+
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(side_effect=Exception('bad json'))
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-            def json(self):
-                # no signal will be notified by get request worked
-                raise Exception('bad json')
-        block._get = MagicMock(return_value=Resp(200))
-        config = {
+        self.configure_block(block, {
             "http_method": "GET",
             "url": url
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block._logger.warning = MagicMock()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified, [])
         block._logger.warning.assert_called_once_with(
             'Request was successful but '
@@ -144,24 +137,23 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         )
         block.stop()
 
-    def test_get_bad_status(self):
+    @patch('requests.get')
+    def test_get_bad_status(self, mock_get):
         url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 400
+        mock_get.return_value = resp
+
         block = self.BLOCK()
-        # fake a response object from get request
-        class Resp(object):
-            def __init__(self, status_code):
-                self.status_code = status_code
-        # get request will return 400
-        block._get = MagicMock(return_value=Resp(400))
-        config = {
+        self.configure_block(block, {
             "http_method": "GET",
             "url": url
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block._logger.warning = MagicMock()
         block.process_signals([Signal()])
-        self.assertTrue(block._get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified, [])
         block._logger.warning.assert_called_once_with(
             'HTTPMethod.GET request to http://httpbin.org/get '
@@ -171,12 +163,13 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     def test_post(self):
         url = "http://httpbin.org/post"
+        
         block = self.BLOCK()
-        config = {
+        self.configure_block(block, {
             "http_method": "POST",
             "url": url,
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([create_signal()])
         self.event.wait(2)
@@ -187,12 +180,13 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     def test_post2(self):
         url = "http://httpbin.org/post"
+        
         block = self.BLOCK()
-        config = {
+        self.configure_block(block, {
             "http_method": "POST",
             "url": url,
-        }
-        self.configure_block(block, config)
+        })
+        
         block.start()
         block.process_signals([Signal({'string': 'text', 'int': 1})])
         self.event.wait(2)
