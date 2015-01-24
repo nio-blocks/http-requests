@@ -8,12 +8,7 @@ import requests
 from requests import Response
 
 
-def create_signal(val1='value1', val2='value2'):
-    return Signal({'key1': val1, 'key2': val2})
-
-
 class TestHTTPRequestsPostSignal(NIOBlockTestCase):
-    BLOCK = HTTPRequestsPostSignal
 
     def setUp(self):
         super().setUp()
@@ -33,7 +28,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.json = MagicMock(return_value={'url': url})
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "GET",
             "url": url
@@ -54,7 +49,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.text = 'not json'
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "log_level": "WARNING",
             "http_method": "GET",
@@ -76,7 +71,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.text = 'not json'
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "GET",
             "url": url,
@@ -98,7 +93,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.json = MagicMock(return_value=[{'url': url}, {'url': url2}])
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "GET",
             "url": url
@@ -120,7 +115,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.json = MagicMock(side_effect=Exception('bad json'))
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "GET",
             "url": url
@@ -144,7 +139,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         resp.status_code = 400
         mock_get.return_value = resp
 
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "GET",
             "url": url
@@ -164,14 +159,17 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
     def test_post(self):
         url = "http://httpbin.org/post"
         
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "POST",
             "url": url,
         })
         
         block.start()
-        block.process_signals([create_signal()])
+        block.process_signals(
+            [Signal({'key1': 'value1', 'key2': 'value2'})]
+        )
+        
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[0].url)
         self.assertEqual('value1', self.last_notified[0].json['key1'])
@@ -181,7 +179,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
     def test_post2(self):
         url = "http://httpbin.org/post"
         
-        block = self.BLOCK()
+        block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "POST",
             "url": url,
