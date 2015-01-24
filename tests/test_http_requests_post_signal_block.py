@@ -4,8 +4,6 @@ from nio.common.signal.base import Signal
 from nio.modules.threading import Event
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 from simplejson.scanner import JSONDecodeError
-import requests
-from requests import Response
 
 
 class TestHTTPRequestsPostSignal(NIOBlockTestCase):
@@ -101,7 +99,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         
         block.start()
         block.process_signals([Signal()])
-        self.assertTrue(requests.get.called)
+        self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified[0].url, url)
         self.assertEqual(self.last_notified[1].url, url2)
         block.stop()
