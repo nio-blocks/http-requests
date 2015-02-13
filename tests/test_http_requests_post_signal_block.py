@@ -4,7 +4,6 @@ from nio.common.signal.base import Signal
 from unittest.mock import MagicMock
 from nio.modules.threading import Event
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
-from simplejson.scanner import JSONDecodeError
 
 
 def create_signal(val1='value1', val2='value2'):
@@ -56,7 +55,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
                 self.text = 'not json'
             def json(self):
                 # a signal will be notified with this response body
-                raise JSONDecodeError('fail', 'data', 1)
+                raise ValueError('fail', 'data', 1)
         block._get = MagicMock(return_value=Resp(200))
         config = {
             "log_level": "WARNING",
@@ -69,7 +68,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         self.assertTrue(block._get.called)
         self.assertEqual(self.last_notified[0].raw, 'not json')
         block.stop()
-        
+
     def test_get_with_non_json_resp_fail(self):
         url = "http://httpbin.org/get"
         block = self.BLOCK()
@@ -79,7 +78,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
                 self.status_code = status_code
             def json(self):
                 # a signal will be notified with this response body
-                raise JSONDecodeError
+                raise ValueError
         block._get = MagicMock(return_value=Resp(200))
         config = {
             "http_method": "GET",

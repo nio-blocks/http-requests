@@ -12,7 +12,6 @@ from nio.metadata.properties.list import ListProperty
 from enum import Enum
 import requests
 import json
-from simplejson.scanner import JSONDecodeError
 
 
 class ResponseSignal(Signal):
@@ -130,7 +129,7 @@ class HTTPRequestsPostSignal(Block):
                         result = sigs
                 self._logger.warning("Request body could not be parsed into "
                                      "Signal(s): {}".format(rjson))
-            except JSONDecodeError:
+            except ValueError:
                 if not self.require_json:
                     result = [ResponseSignal({'raw': r.text})]
                 else:
