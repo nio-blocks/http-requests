@@ -74,6 +74,7 @@ class HTTPRequestsPostSignal(Block):
         title='HTTP Method'
     )
     headers = ListProperty(Header, title="Headers")
+    require_json = BoolProperty(title="Require JSON Response", default=False)
 
     def process_signals(self, signals):
         new_signals = []
@@ -115,33 +116,41 @@ class HTTPRequestsPostSignal(Block):
             self._logger.warning("Bad Http Request: {0}".format(e))
             return
         if 200 <= r.status_code < 300:
+            result = None
             try:
                 rjson = r.json()
                 if isinstance(rjson, dict):
-                    sig = ResponseSignal(rjson)
-                    return [sig]
+                    result = [ResponseSignal(rjson)]
                 if isinstance(rjson, list):
                     sigs = []
                     for s in rjson:
                         sigs.append(ResponseSignal(s))
                     if sigs:
-                        return sigs
+                        result = sigs
                 self._logger.warning("Request body could not be parsed into "
                                      "Signal(s): {}".format(rjson))
-                return None
+            except ValueError:
+                if not self.require_json:
+                    result = [ResponseSignal({'raw': r.text})]
+                else:
+                    self._logger.warning(
+                        "Request was successful, but response was not "
+                        "valid JSON. No ResponseSignal was created."
+                    )
             except Exception as e:
                 self._logger.warning(
-                    "Request was successfull but "
+                    "Request was successful but "
                     "failed to create ResponseSignal: {}".format(e)
                 )
-                return
+            finally:
+                return result
         else:
-            self._logger.warning("{} request to {} returned with "
-                                    "response code: {}".format(
-                                        self.http_method,
-                                        url,
-                                        r.status_code
-                                    )
+            self._logger.warning(
+                "{} request to {} returned with response code: {}".format(
+                    self.http_method,
+                    url,
+                    r.status_code
+                )
             )
 
     def _get(self, url, auth, payload, headers):
