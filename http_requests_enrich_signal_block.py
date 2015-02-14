@@ -1,7 +1,6 @@
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.signal.base import Signal
 from nio.metadata.properties import StringProperty
-import json
 from .http_requests_block import HTTPRequests
 
 
@@ -24,7 +23,6 @@ class HTTPRequestsEnrichSignal(HTTPRequests):
             inside this attribute on the original input Signal.
 
     """
-
     enrich_signal_attr = StringProperty(title='Enrich Signal - Attribute Name',
                                         default='')
 
@@ -33,12 +31,19 @@ class HTTPRequestsEnrichSignal(HTTPRequests):
         for signal in signals:
             new_sigs = self._make_request(signal)
             if new_sigs:
-                if self.enrich_signal_attr:
-                    for new_sig in new_sigs:
-                        sig = Signal(signal.to_dict())
-                        setattr(sig, self.enrich_signal_attr, new_sig.to_dict())
-                        new_signals.append(sig)
-                else:
-                    new_signals.extend(new_sigs)
+                new_signals = self._enrich_signals(signal, new_sigs)
         if new_signals:
             self.notify_signals(new_signals)
+
+    def _enrich_signals(self, signal, new_sigs):
+        new_signals = []
+
+        if self.enrich_signal_attr:
+            for new_sig in new_sigs:
+                sig = Signal(signal.to_dict())
+                setattr(sig, self.enrich_signal_attr, new_sig.to_dict())
+                new_signals.append(sig)
+        else:
+            new_signals.extend(new_sigs)
+
+        return new_signals

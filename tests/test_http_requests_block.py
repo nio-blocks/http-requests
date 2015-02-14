@@ -1,15 +1,24 @@
 from nio.common.signal.base import Signal
-
+from nio.modules.threading import Event
+from nio.util.support.block_test_case import NIOBlockTestCase
 from ..http_requests_block import HTTPRequests
-from .test_http_requests_post_signal_block import TestHTTPRequestsPostSignal
 
 
-class TestHTTPRequests(TestHTTPRequestsPostSignal):
-    BLOCK = HTTPRequests
+class TestHTTPRequests(NIOBlockTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.last_notified = []
+        self.event = Event()
+
+    def signals_notified(self, signals, output_id='default'):
+        self.last_notified = signals
+        self.event.set()
+        self.event.clear()
 
     def test_post(self):
         url = "http://httpbin.org/post"
-        block = self.BLOCK()
+        block = HTTPRequests()
         config = {
             "url": url,
             "http_method": "POST",
@@ -31,7 +40,7 @@ class TestHTTPRequests(TestHTTPRequestsPostSignal):
 
     def test_post2(self):
         url = "http://httpbin.org/post"
-        block = self.BLOCK()
+        block = HTTPRequests()
         config = {
             "url": url,
             "http_method": "POST",
@@ -53,7 +62,7 @@ class TestHTTPRequests(TestHTTPRequestsPostSignal):
 
     def test_post_form(self):
         url = "http://httpbin.org/post"
-        block = self.BLOCK()
+        block = HTTPRequests()
         config = {
             "url": url,
             "http_method": "POST",
@@ -76,7 +85,7 @@ class TestHTTPRequests(TestHTTPRequestsPostSignal):
 
     def test_post_expr(self):
         url = "http://httpbin.org/post"
-        block = self.BLOCK()
+        block = HTTPRequests()
         config = {
             "url": url,
             "http_method": "POST",

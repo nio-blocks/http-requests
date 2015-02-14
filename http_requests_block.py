@@ -1,15 +1,9 @@
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.metadata.properties.holder import PropertyHolder
-from nio.metadata.properties.expression import ExpressionProperty
-from nio.metadata.properties.object import ObjectProperty
-from nio.metadata.properties.bool import BoolProperty
-from nio.metadata.properties.list import ListProperty
-
 import json
 
-from .http_requests_post_signal_block import (HTTPRequestsPostSignal,
-                                              SelectProperty,
-                                              HTTPMethod)
+from .http_requests_base_block import HTTPRequestsBase, HTTPMethod
+from nio.common.discovery import Discoverable, DiscoverableType
+from nio.metadata.properties import PropertyHolder, ExpressionProperty, \
+    ObjectProperty, BoolProperty, ListProperty, SelectProperty
 
 
 class Param(PropertyHolder):
@@ -24,9 +18,12 @@ class Data(PropertyHolder):
 
 
 @Discoverable(DiscoverableType.block)
-class HTTPRequests(HTTPRequestsPostSignal):
+class HTTPRequests(HTTPRequestsBase):
 
     """ A Block that makes HTTP Requests.
+
+    Makes the configured request with the configured data parameters,
+    evaluated in the context of incoming signals.
 
     Properties:
         url (str): URL to make request to.
@@ -45,20 +42,20 @@ class HTTPRequests(HTTPRequestsPostSignal):
         default=HTTPMethod.GET,
         title='HTTP Method'
     )
+
     def _create_payload(self, signal):
         payload = {}
         for param in self.data.params:
             try:
                 param_key = param.key(signal)
-            except Exception as e:
+            except Exception:
                 param_key = None
             try:
                 param_value = param.value(signal)
-            except Exception as e:
+            except Exception:
                 param_value = None
             if param_key and param_value:
                 payload[param_key] = param_value
         if not self.data.form_encode_data:
             payload = json.dumps(payload)
         return payload
-
