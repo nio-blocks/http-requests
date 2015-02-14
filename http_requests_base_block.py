@@ -12,7 +12,6 @@ from nio.metadata.properties.list import ListProperty
 from enum import Enum
 import requests
 import json
-from simplejson.scanner import JSONDecodeError
 
 
 class ResponseSignal(Signal):
@@ -85,13 +84,13 @@ class HTTPRequestsBase(Block):
         auth = self._create_auth()
         payload = self._create_payload(signal)
         headers = self._create_headers(signal)
-        
+
         try:
             r = self._execute_request(url, auth, payload, headers)
         except Exception as e:
             self._logger.warning("Bad Http Request: {0}".format(e))
             return
-        
+
         if 200 <= r.status_code < 300:
             return self._process_response(r)
         else:
@@ -138,7 +137,7 @@ class HTTPRequestsBase(Block):
             else:
                 self._logger.warning("Response body could not be parsed into "
                                      "Signal(s): {}".format(data))
-        except JSONDecodeError:
+        except ValueError:
             if not self.require_json:
                 result = [ResponseSignal({'raw': response.text})]
             else:
@@ -155,7 +154,7 @@ class HTTPRequestsBase(Block):
             return result
 
 
-            
+
     def _create_auth(self):
         if self.basic_auth_creds.username:
             return requests.auth.HTTPBasicAuth(
