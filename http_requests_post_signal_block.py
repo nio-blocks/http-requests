@@ -18,7 +18,6 @@ class HTTPRequestsPostSignal(HTTPRequestsBase):
             PUT, DELETE, etc).
     """
 
-
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.POST,

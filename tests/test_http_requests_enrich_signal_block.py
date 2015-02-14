@@ -30,7 +30,7 @@ class TestHTTPRequestsEnrichSignal(NIOBlockTestCase):
             "http_method": "GET",
             "url": url
         })
-        
+
         block.start()
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertTrue(mock_get.called)
@@ -48,18 +48,13 @@ class TestHTTPRequestsEnrichSignal(NIOBlockTestCase):
         mock_get.return_value = resp
 
         block = HTTPRequestsEnrichSignal()
-        # # fake a response object from get request
+        # fake a response object from get request
         # class Resp(object):
         #     def __init__(self, status_code):
         #         self.status_code = status_code
         #     def json(self):
-        #         # a signal will be notified with this response body
+        # a signal will be notified with this response body
         #         return {'url': url}
-        config = {
-            "http_method": "GET",
-            "url": url,
-            "enrich_signal_attr": "response"
-        }
         self.configure_block(block, {
             "http_method": "GET",
             "url": url,
@@ -88,7 +83,7 @@ class TestHTTPRequestsEnrichSignal(NIOBlockTestCase):
             "url": url,
             "enrich_signal_attr": 'response'
         })
-        
+
         block.start()
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertTrue(mock_get.called)

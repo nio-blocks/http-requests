@@ -1,7 +1,5 @@
 from nio.common.block.base import Block
 from nio.common.signal.base import Signal
-from nio.common.versioning.dependency import DependsOn
-from nio.common.discovery import Discoverable, DiscoverableType
 from nio.metadata.properties.holder import PropertyHolder
 from nio.metadata.properties.select import SelectProperty
 from nio.metadata.properties.string import StringProperty
@@ -115,7 +113,6 @@ class HTTPRequestsBase(Block):
 
         return method(url, auth=auth, data=data, headers=headers)
 
-
     def _process_response(self, response):
         result = None
         try:
@@ -152,8 +149,6 @@ class HTTPRequestsBase(Block):
             )
         finally:
             return result
-
-
 
     def _create_auth(self):
         if self.basic_auth_creds.username:

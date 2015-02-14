@@ -42,17 +42,17 @@ class HTTPRequests(HTTPRequestsBase):
         default=HTTPMethod.GET,
         title='HTTP Method'
     )
-    
+
     def _create_payload(self, signal):
         payload = {}
         for param in self.data.params:
             try:
                 param_key = param.key(signal)
-            except Exception as e:
+            except Exception:
                 param_key = None
             try:
                 param_value = param.value(signal)
-            except Exception as e:
+            except Exception:
                 param_value = None
             if param_key and param_value:
                 payload[param_key] = param_value
