@@ -56,6 +56,6 @@ class HTTPRequests(HTTPRequestsBase):
                 param_value = None
             if param_key and param_value:
                 payload[param_key] = param_value
-        if not self.data.form_encode_data:
+        if payload and not self.data.form_encode_data:
             payload = json.dumps(payload)
         return payload

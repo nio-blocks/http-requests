@@ -16,6 +16,15 @@ class TestHTTPRequests(NIOBlockTestCase):
         self.event.set()
         self.event.clear()
 
+    def test_create_payload(self):
+        block = HTTPRequests()
+        self.configure_block(block, {})
+        payload = block._create_payload(Signal())
+        self.assertEqual({}, payload)
+        self.configure_block(block, {'data': {'form_encode_data': True}})
+        payload = block._create_payload(Signal())
+        self.assertEqual({}, payload)
+
     def test_post(self):
         url = "http://httpbin.org/post"
         block = HTTPRequests()

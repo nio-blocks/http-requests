@@ -13,6 +13,7 @@ Properties
 -   **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
 -   **data**: URL Parameters. Keys and Values are Expression Properties.
 -   **headers**: Custom Headers.
+-   **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format {'raw': response.text}.
 
 
 Dependencies
