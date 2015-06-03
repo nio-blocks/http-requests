@@ -31,7 +31,7 @@ class HTTPRequestsEnrichSignal(HTTPRequests):
         for signal in signals:
             new_sigs = self._make_request(signal)
             if new_sigs:
-                new_signals = self._enrich_signals(signal, new_sigs)
+                new_signals.extend(self._enrich_signals(signal, new_sigs))
         if new_signals:
             self.notify_signals(new_signals)
 

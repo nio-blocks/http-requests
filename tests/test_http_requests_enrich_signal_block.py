@@ -68,6 +68,34 @@ class TestHTTPRequestsEnrichSignal(NIOBlockTestCase):
         block.stop()
 
     @patch('requests.get')
+    def test_multiple_sigs(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+
+        block = HTTPRequestsEnrichSignal()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "enrich_signal_attr": "response"
+        })
+
+        block.start()
+        block.process_signals([
+            Signal({'input_attr': 'value1'}),
+            Signal({'input_attr': 'value2'})
+        ])
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertEqual(len(self.last_notified), 2)
+        self.assertEqual(self.last_notified[0].response['url'], url)
+        self.assertEqual(self.last_notified[1].response['url'], url)
+        self.assertEqual(self.last_notified[0].input_attr, 'value1')
+        self.assertEqual(self.last_notified[1].input_attr, 'value2')
+        block.stop()
+
+    @patch('requests.get')
     def test_get_with_enrich_signal_list_resp(self, mock_get):
         url = "http://httpbin.org/get"
         url2 = "http://httpbin.org/get2"
