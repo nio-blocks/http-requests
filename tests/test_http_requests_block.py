@@ -112,3 +112,16 @@ class TestHTTPRequests(NIOBlockTestCase):
         self.assertEqual(url, self.last_notified[0].url)
         self.assertEqual('cheers', self.last_notified[0].json['greeting'])
         block.stop()
+
+    def test_resp_attr(self):
+        ''' Hidden attr '_resp' is added to signals '''
+        url = "http://httpbin.org/get"
+        block = HTTPRequests()
+        config = {"url": url}
+        self.configure_block(block, config)
+        block.start()
+        block.process_signals([Signal()])
+        self.event.wait(2)
+        self.assertEqual(url, self.last_notified[0].url)
+        self.assertEqual(200, self.last_notified[0]._resp['status_code'])
+        block.stop()

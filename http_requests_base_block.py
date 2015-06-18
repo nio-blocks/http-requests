@@ -114,7 +114,7 @@ class HTTPRequestsBase(Block):
         return method(url, auth=auth, data=data, headers=headers)
 
     def _process_response(self, response):
-        result = None
+        result = []
         try:
             data = response.json()
 
@@ -148,6 +148,9 @@ class HTTPRequestsBase(Block):
                 "failed to create ResponseSignal: {}".format(e)
             )
         finally:
+            # Add the rest of the Response information to the signal
+            for sig in result:
+                sig._resp = response.__dict__
             return result
 
     def _create_auth(self):
