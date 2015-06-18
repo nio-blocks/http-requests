@@ -31,14 +31,18 @@ Any list of signals. Signal attributes can be used for *url* and *data*.
 
 Output
 ---------
-One output signal is created for each successful http request. The requets Response object is place in the signal. Common attributes on the signal:
+
+If the response body is json, then the body is output as a new Signal.
+
+If the response body is a list of json, then a new Signal is output for each json dict in the body.
+
+If the response body is not json, then the raw text of the response is output on a new Signal as *raw*.
+
+The requests Response is also appended to each output signal as a dictionary in the hidden attribute *_resp*. TODO: Make this a configurable attribute with the EnrichSignals mixin. Common attributes in the *_resp* are:
 
 -   url
--   origin
--   data
--   json
--   form
--   args
+-   status_code
+-   headers
 
 Example Usage
 -------------
