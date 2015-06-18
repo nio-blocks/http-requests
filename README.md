@@ -38,7 +38,7 @@ If the response body is a list of json, then a new Signal is output for each jso
 
 If the response body is not json, then the raw text of the response is output on a new Signal as *raw*.
 
-The requests Reponse is also appended to each output signal as a dictionary in the hidden attribute *_resp*. TODO: Make this a configurable attribute with the EnrichSignals mixin. Common attributes ion the *_resp* are:
+The requests Response is also appended to each output signal as a dictionary in the hidden attribute *_resp*. TODO: Make this a configurable attribute with the EnrichSignals mixin. Common attributes in the *_resp* are:
 
 -   url
 -   status_code
