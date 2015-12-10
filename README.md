@@ -34,15 +34,38 @@ Output
 
 If the response body is json, then the body is output as a new Signal.
 
-If the response body is a list of json, then a new Signal is output for each json dict in the body.
+If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.
 
 If the response body is not json, then the raw text of the response is output on a new Signal as *raw*.
 
-The requests Response is also appended to each output signal as a dictionary in the hidden attribute *_resp*. TODO: Make this a configurable attribute with the EnrichSignals mixin. Common attributes in the *_resp* are:
+```python
+{
+  'raw': '<html>Raw html page... boring</html>',
+}
+```
 
--   url
--   status_code
--   headers
+The request's [requests.Response](http://docs.python-requests.org/en/latest/api/#requests.Response) is appended to each output signal as a dictionary in the hidden attribute *_resp*. TODO: Make this a configurable attribute with the EnrichSignals mixin.
+
+
+Example *_resp* for `requests.Response().__dict__`:
+
+```python
+{
+  '_resp': {
+    'status_code': None,
+    'history': [],
+    'reason': None,
+    'raw': None,
+    '_content_consumed': False,
+    'elapsed': datetime.timedelta(0),
+    '_content': False,
+    'headers': CaseInsensitiveDict({}),
+    'url': None,
+    'cookies': <<class 'requests.cookies.RequestsCookieJar'>[]>,
+    'encoding': None
+  }
+}
+```
 
 Example Usage
 -------------
