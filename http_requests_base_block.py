@@ -61,6 +61,8 @@ class HTTPRequestsBase(Block):
     )
     headers = ListProperty(Header, title="Headers")
     require_json = BoolProperty(title="Require JSON Response", default=False)
+    verify = BoolProperty(
+        title="Verify host's SSL certificate", default=True, visible=False)
 
     def process_signals(self, signals):
         new_signals = []
@@ -111,7 +113,8 @@ class HTTPRequestsBase(Block):
         finally:
             method = getattr(requests, method_name)
 
-        return method(url, auth=auth, data=data, headers=headers)
+        return method(url, auth=auth, data=data, headers=headers,
+                      verify=self.verify)
 
     def _process_response(self, response):
         result = []
