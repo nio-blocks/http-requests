@@ -21,8 +21,8 @@ class ResponseSignal(Signal):
 
 
 class Header(PropertyHolder):
-    header = StringProperty(title='Header')
-    value = StringProperty(title='Value')
+    header = ExpressionProperty(title='Header')
+    value = ExpressionProperty(title='Value')
 
 
 class BasicAuthCreds(PropertyHolder):
@@ -166,8 +166,8 @@ class HTTPRequestsBase(Block):
     def _create_headers(self, signal):
         headers = {}
         for header in self.headers:
-            header_header = header.header
-            header_value = header.value
+            header_header = header.header(signal)
+            header_value = header.value(signal)
             if header_header and header_value:
                 headers[header_header] = header_value
         return headers

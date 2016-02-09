@@ -25,6 +25,16 @@ class TestHTTPRequests(NIOBlockTestCase):
         payload = block._create_payload(Signal())
         self.assertEqual({}, payload)
 
+    def test_create_headers(self):
+        block = HTTPRequests()
+        self.configure_block(block, {})
+        headers = block._create_headers(Signal())
+        self.assertEqual({}, headers)
+        self.configure_block(block, {'headers': [
+            {'header': '{{ $header }}', 'value': '{{ $value }}'}]})
+        headers = block._create_headers(Signal({'header': 'h', 'value': 'v'}))
+        self.assertEqual({'h': 'v'}, headers)
+
     def test_post(self):
         url = "http://httpbin.org/post"
         block = HTTPRequests()

@@ -1,36 +1,36 @@
 HTTPRequests
-===========
+============
 
 A Block that makes HTTP requests.
 
 One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.
 
 Properties
---------------
+----------
 
 -   **url**: URL to make request to. Expression property.
 -   **http_method**: HTTP Method (ex. GET, POST, PUT, DELETE, etc...).
 -   **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
 -   **data**: URL Parameters. Keys and Values are Expression Properties.
--   **headers**: Custom Headers.
+-   **headers**: Custom Headers. Keys and Values are Expression Properties.
 -   **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format {'raw': response.text}.
 
 
 Dependencies
-----------------
+------------
 
 -   [requests](https://pypi.python.org/pypi/requests/)
 
 Commands
-----------------
+--------
 None
 
 Input
--------
+-----
 Any list of signals. Signal attributes can be used for *url* and *data*.
 
 Output
----------
+------
 
 If the response body is json, then the body is output as a new Signal.
 
