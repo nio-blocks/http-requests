@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from nio.common.signal.base import Signal
 from nio.modules.threading import Event
 from nio.util.support.block_test_case import NIOBlockTestCase
@@ -15,6 +16,19 @@ class TestHTTPRequests(NIOBlockTestCase):
         self.last_notified = signals
         self.event.set()
         self.event.clear()
+
+    def test_execute_request_verify_flag(self):
+        block = HTTPRequests()
+        self.configure_block(block, {})
+        with patch('requests.get') as get:
+            block._execute_request('url', None, None, None)
+            get.assert_called_once_with(
+                'url', auth=None, data=None, headers=None, verify=True)
+        self.configure_block(block, {'verify': False})
+        with patch('requests.get') as get:
+            block._execute_request('url', None, None, None)
+            get.assert_called_once_with(
+                'url', auth=None, data=None, headers=None, verify=False)
 
     def test_create_payload(self):
         block = HTTPRequests()
