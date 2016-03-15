@@ -1,19 +1,19 @@
-from unittest.mock import patch
-from nio.common.signal.base import Signal
-from nio.modules.threading import Event
-from nio.util.support.block_test_case import NIOBlockTestCase
+from threading import Event
+from unittest.mock import MagicMock, patch
+from nio.block.terminals import DEFAULT_TERMINAL
+from nio.signal.base import Signal
+from nio.testing.block_test_case import NIOBlockTestCase
 from ..http_requests_block import HTTPRequests
 
 
-class TestHTTPRequests(NIOBlockTestCase):
+class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     def setUp(self):
         super().setUp()
-        self.last_notified = []
         self.event = Event()
 
-    def signals_notified(self, signals, output_id='default'):
-        self.last_notified = signals
+    def signals_notified(self, block, signals, output_id):
+        super().signals_notified(block, signals, output_id)
         self.event.set()
         self.event.clear()
 
@@ -66,9 +66,9 @@ class TestHTTPRequests(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal()])
         self.event.wait(2)
-        self.assertEqual(url, self.last_notified[0].url)
-        self.assertEqual('value1', self.last_notified[0].json['key1'])
-        self.assertEqual('value2', self.last_notified[0].json['key2'])
+        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
+        self.assertEqual('value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
+        self.assertEqual('value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
         block.stop()
 
     def test_post2(self):
@@ -88,9 +88,9 @@ class TestHTTPRequests(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal()])
         self.event.wait(2)
-        self.assertEqual(url, self.last_notified[0].url)
-        self.assertEqual('text', self.last_notified[0].json['string'])
-        self.assertEqual(1, self.last_notified[0].json['int'])
+        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
+        self.assertEqual('text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
+        self.assertEqual(1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
         block.stop()
 
     def test_post_form(self):
@@ -111,9 +111,9 @@ class TestHTTPRequests(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal()])
         self.event.wait(2)
-        self.assertEqual(url, self.last_notified[0].url)
-        self.assertEqual('value1', self.last_notified[0].form['key1'])
-        self.assertEqual('value2', self.last_notified[0].form['key2'])
+        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
+        self.assertEqual('value1', self.last_notified[DEFAULT_TERMINAL][0].form['key1'])
+        self.assertEqual('value2', self.last_notified[DEFAULT_TERMINAL][0].form['key2'])
         block.stop()
 
     def test_post_expr(self):
@@ -133,8 +133,8 @@ class TestHTTPRequests(NIOBlockTestCase):
         block.process_signals([Signal({'key': 'greeting',
                                        'val': 'cheers'})])
         self.event.wait(2)
-        self.assertEqual(url, self.last_notified[0].url)
-        self.assertEqual('cheers', self.last_notified[0].json['greeting'])
+        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
+        self.assertEqual('cheers', self.last_notified[DEFAULT_TERMINAL][0].json['greeting'])
         block.stop()
 
     def test_resp_attr(self):
@@ -146,6 +146,110 @@ class TestHTTPRequests(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal()])
         self.event.wait(2)
-        self.assertEqual(url, self.last_notified[0].url)
-        self.assertEqual(200, self.last_notified[0]._resp['status_code'])
+        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
+        self.assertEqual(200, self.last_notified[DEFAULT_TERMINAL][0]._resp['status_code'])
+        block.stop()
+
+    @patch('requests.get')
+    def test_get_with_enrich_signal_empty(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        self.assertTrue(mock_get.called)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].url, url)
+        self.assertFalse(hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
+        block.stop()
+
+    @patch('requests.get')
+    def test_get_with_enrich_signal(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        # fake a response object from get request
+        # class Resp(object):
+        #     def __init__(self, status_code):
+        #         self.status_code = status_code
+        #     def json(self):
+        # a signal will be notified with this response body
+        #         return {'url': url}
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "enrich": {
+                "exclude_existing": False,
+                "enrich_field": "response"
+            }
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        self.assertTrue(mock_get.called)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
+        block.stop()
+
+    @patch('requests.get')
+    def test_multiple_sigs(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "enrich": {
+                "exclude_existing": False,
+                "enrich_field": "response"
+            }
+        })
+        block.start()
+        block.process_signals([
+            Signal({'input_attr': 'value1'}),
+            Signal({'input_attr': 'value2'})
+        ])
+        self.assertEqual(mock_get.call_count, 2)
+        self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 2)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].response['url'], url)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value1')
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value2')
+        block.stop()
+
+    @patch('requests.get')
+    def test_get_with_enrich_signal_list_resp(self, mock_get):
+        url = "http://httpbin.org/get"
+        url2 = "http://httpbin.org/get2"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value=[{'url': url}, {'url': url2}])
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "enrich": {
+                "exclude_existing": False,
+                "enrich_field": "response"
+            }
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        self.assertTrue(mock_get.called)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].response['url'], url2)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value')
         block.stop()

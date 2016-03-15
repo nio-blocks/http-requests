@@ -1,9 +1,9 @@
-from .http_requests_base_block import HTTPRequestsBase, HTTPMethod
-from nio.metadata.properties import SelectProperty
-from nio.common.discovery import Discoverable, DiscoverableType
+from .http_requests_base import HTTPRequestsBase, HTTPMethod
+from nio.properties import SelectProperty
+from nio.util.discovery import discoverable
 
 
-@Discoverable(DiscoverableType.block)
+@discoverable
 class HTTPRequestsPostSignal(HTTPRequestsBase):
 
     """ A Block that makes HTTP Requests.
@@ -21,5 +21,6 @@ class HTTPRequestsPostSignal(HTTPRequestsBase):
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.POST,
-        title='HTTP Method'
+        title='HTTP Method',
+        visible=False
     )
