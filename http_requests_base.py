@@ -165,7 +165,7 @@ class HTTPRequestsBase(EnrichSignals, Block):
             return result
 
     def _create_auth(self):
-        if self.basic_auth_creds().username() is not None:
+        if self.basic_auth_creds().username():
             return requests.auth.HTTPBasicAuth(
                 self.basic_auth_creds().username(),
                 self.basic_auth_creds().password()
