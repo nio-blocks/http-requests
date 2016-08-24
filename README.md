@@ -70,6 +70,10 @@ Example `_resp` for `requests.Response().__dict__`:
 
 Example Usage
 -------------
-**Trigger block commands.** Set the url to ```http://{{$host}}:{{$port}}/services/{{$service_name}}/{{$block_name}}/{{$command_name}}``` and make sure to set the Basic Authentication for your nio instance. Anytime a signal is input to this block, the command will be called. One use case is to reset a counter block on a given interval.
+**Trigger block commands.** Set the url to 
+```
+http://{{$host}}:{{$port}}/services/{{$service_name}}/{{$block_name}}/{{$command_name}}
+``` 
+and make sure to set the Basic Authentication for your nio instance. Anytime a signal is input to this block, the command will be called. One use case is to reset a counter block on a given interval.
 
 NOTE: This example is superseded by the [NioCommand](https://github.com/nio-blocks/nio_command) block.
