@@ -1,16 +1,17 @@
+import json
+from enum import Enum
+
+import requests
 from nio.block.base import Block
-from nio.signal.base import Signal
+from nio.block.mixins.enrich.enrich_signals import EnrichSignals, EnrichProperties
+from nio.properties import Property
+from nio.properties.bool import BoolProperty
 from nio.properties.holder import PropertyHolder
+from nio.properties.list import ListProperty
+from nio.properties.object import ObjectProperty
 from nio.properties.select import SelectProperty
 from nio.properties.string import StringProperty
-from nio.properties import Property
-from nio.properties.object import ObjectProperty
-from nio.properties.bool import BoolProperty
-from nio.properties.list import ListProperty
-from enum import Enum
-import requests
-import json
-from nio.block.mixins.enrich.enrich_signals import EnrichSignals, EnrichProperties
+from nio.util.discovery import not_discoverable
 
 
 class Header(PropertyHolder):
@@ -32,6 +33,7 @@ class HTTPMethod(Enum):
     OPTIONS = 'options'
 
 
+@not_discoverable
 class HTTPRequestsBase(EnrichSignals, Block):
 
     """ A base for Blocks that makes HTTP Requests.
