@@ -1,33 +1,27 @@
-from nio.common.block.base import Block
-from nio.common.signal.base import Signal
-from nio.metadata.properties.holder import PropertyHolder
-from nio.metadata.properties.select import SelectProperty
-from nio.metadata.properties.string import StringProperty
-from nio.metadata.properties.expression import ExpressionProperty
-from nio.metadata.properties.object import ObjectProperty
-from nio.metadata.properties.bool import BoolProperty
-from nio.metadata.properties.list import ListProperty
-from enum import Enum
-import requests
 import json
+from enum import Enum
 
-
-class ResponseSignal(Signal):
-
-    def __init__(self, data):
-        super().__init__()
-        for k in data:
-            setattr(self, k, data[k])
+import requests
+from nio.block.base import Block
+from nio.block.mixins.enrich.enrich_signals import EnrichSignals, EnrichProperties
+from nio.properties import Property
+from nio.properties.bool import BoolProperty
+from nio.properties.holder import PropertyHolder
+from nio.properties.list import ListProperty
+from nio.properties.object import ObjectProperty
+from nio.properties.select import SelectProperty
+from nio.properties.string import StringProperty
+from nio.util.discovery import not_discoverable
 
 
 class Header(PropertyHolder):
-    header = ExpressionProperty(title='Header')
-    value = ExpressionProperty(title='Value')
+    header = Property(title='Header', allow_none=True)
+    value = Property(title='Value', allow_none=True)
 
 
 class BasicAuthCreds(PropertyHolder):
-    username = StringProperty(title='Username')
-    password = StringProperty(title='Password')
+    username = StringProperty(title='Username', allow_none=True)
+    password = StringProperty(title='Password', allow_none=True)
 
 
 class HTTPMethod(Enum):
@@ -39,7 +33,8 @@ class HTTPMethod(Enum):
     OPTIONS = 'options'
 
 
-class HTTPRequestsBase(Block):
+@not_discoverable
+class HTTPRequestsBase(EnrichSignals, Block):
 
     """ A base for Blocks that makes HTTP Requests.
 
@@ -50,19 +45,25 @@ class HTTPRequestsBase(Block):
             PUT, DELETE, etc).
     """
 
-    url = ExpressionProperty(title='URL Target',
-                             default="http://127.0.0.1:8181")
+    url = Property(title='URL Target',
+                   default="http://127.0.0.1:8181")
     basic_auth_creds = ObjectProperty(BasicAuthCreds,
-                                      title='Credentials (BasicAuth)')
+                                      title='Credentials (BasicAuth)',
+                                      default=BasicAuthCreds())
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.GET,
         title='HTTP Method'
     )
-    headers = ListProperty(Header, title="Headers")
+    headers = ListProperty(Header, title="Headers", default=[])
     require_json = BoolProperty(title="Require JSON Response", default=False)
     verify = BoolProperty(
         title="Verify host's SSL certificate", default=True, visible=False)
+
+    # TODO: remove this when mixin in framework is fixed
+    enrich = ObjectProperty(EnrichProperties,
+                            title='Signal Enrichment',
+                            default=EnrichProperties())
 
     def process_signals(self, signals):
         new_signals = []
@@ -77,7 +78,7 @@ class HTTPRequestsBase(Block):
         try:
             url = self.url(signal)
         except Exception as e:
-            self._logger.warning(
+            self.logger.warning(
                 "Failed to evaluate url {}: {}".format(url, e)
             )
             return
@@ -88,79 +89,88 @@ class HTTPRequestsBase(Block):
         try:
             r = self._execute_request(url, auth, payload, headers)
         except Exception as e:
-            self._logger.warning("Bad Http Request: {0}".format(e))
+            self.logger.warning("Bad Http Request: {0}".format(e))
             return
 
         if 200 <= r.status_code < 300:
-            return self._process_response(r)
+            return self._process_response(r, signal)
         else:
-            self._logger.warning(
+            self.logger.warning(
                 "{} request to {} returned with response code: {}".format(
-                    self.http_method,
+                    self.http_method(),
                     url,
                     r.status_code
                 )
             )
+            return [signal]
 
     def _execute_request(self, url, auth, data, headers):
         try:
-            method_name = self.http_method.value
+            method_name = self.http_method().value
         except:
             method_name = HTTPMethod.GET.value
-            self._logger.debug(
+            self.logger.debug(
                 "Invalid HTTP method selection. Defaulting to GET."
             )
         finally:
             method = getattr(requests, method_name)
 
         return method(url, auth=auth, data=data, headers=headers,
-                      verify=self.verify)
+                      verify=self.verify())
 
-    def _process_response(self, response):
+    def _process_response(self, response, signal):
         result = []
         try:
             data = response.json()
 
             # if the response is a dictionary, build a signal
             if isinstance(data, dict):
-                result = [ResponseSignal(data)]
+                result = [self.get_output_signal(data, signal)]
 
             # if the response is a list, build a signal for each element
             elif isinstance(data, list):
                 sigs = []
                 for s in data:
-                    sigs.append(ResponseSignal(s))
+                    sigs.append(
+                        self.get_output_signal(s, signal))
                 if sigs:
                     result = sigs
 
             # otherwise, no dice on parsing the response body
             else:
-                self._logger.warning("Response body could not be parsed into "
+                self.logger.warning("Response body could not be parsed into "
                                      "Signal(s): {}".format(data))
+                result = [signal]
         except ValueError:
-            if not self.require_json:
-                result = [ResponseSignal({'raw': response.text})]
+            if not self.require_json():
+                result = [self.get_output_signal(
+                    {'raw': response.text}, signal)]
             else:
-                self._logger.warning(
+                self.logger.warning(
                     "Request was successful, but response was not "
-                    "valid JSON. No ResponseSignal was created."
+                    "valid JSON. No response signal was created."
                 )
+                result = [signal]
         except Exception as e:
-            self._logger.warning(
+            self.logger.warning(
                 "Request was successful but "
-                "failed to create ResponseSignal: {}".format(e)
+                "failed to create response signal: {}".format(e)
             )
+            result = [signal]
         finally:
             # Add the rest of the Response information to the signal
             for sig in result:
-                sig._resp = response.__dict__
+                try:
+                    sig._resp = response.__dict__
+                except:
+                    self.logger.warning("Response failed to save to signal")
             return result
 
     def _create_auth(self):
-        if self.basic_auth_creds.username:
+        if self.basic_auth_creds().username():
             return requests.auth.HTTPBasicAuth(
-                self.basic_auth_creds.username,
-                self.basic_auth_creds.password
+                self.basic_auth_creds().username(),
+                self.basic_auth_creds().password()
             )
 
     def _create_payload(self, signal):
@@ -168,7 +178,7 @@ class HTTPRequestsBase(Block):
 
     def _create_headers(self, signal):
         headers = {}
-        for header in self.headers:
+        for header in self.headers():
             header_header = header.header(signal)
             header_value = header.value(signal)
             if header_header and header_value:

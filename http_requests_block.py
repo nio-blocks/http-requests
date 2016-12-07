@@ -1,23 +1,23 @@
 import json
 
-from .http_requests_base_block import HTTPRequestsBase, HTTPMethod
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.metadata.properties import PropertyHolder, ExpressionProperty, \
+from .http_requests_base import HTTPRequestsBase, HTTPMethod
+from nio.util.discovery import discoverable
+from nio.properties import PropertyHolder, Property, \
     ObjectProperty, BoolProperty, ListProperty, SelectProperty
 
 
 class Param(PropertyHolder):
-    key = ExpressionProperty(title='URL Parameter Key')
-    value = ExpressionProperty(title='Value')
+    key = Property(title='URL Parameter Key', allow_none=True)
+    value = Property(title='Value', allow_none=True)
 
 
 class Data(PropertyHolder):
-    params = ListProperty(Param, title="Parameters")
+    params = ListProperty(Param, title="Parameters", default=[])
     form_encode_data = BoolProperty(default=False,
                                     title="Form-Encode Data?")
 
 
-@Discoverable(DiscoverableType.block)
+@discoverable
 class HTTPRequests(HTTPRequestsBase):
 
     """ A Block that makes HTTP Requests.
@@ -35,7 +35,7 @@ class HTTPRequests(HTTPRequestsBase):
 
     """
 
-    data = ObjectProperty(Data, title="Parameters")
+    data = ObjectProperty(Data, title="Parameters", default=Data())
 
     http_method = SelectProperty(
         HTTPMethod,
@@ -45,7 +45,7 @@ class HTTPRequests(HTTPRequestsBase):
 
     def _create_payload(self, signal):
         payload = {}
-        for param in self.data.params:
+        for param in self.data().params():
             try:
                 param_key = param.key(signal)
             except Exception:
@@ -56,6 +56,6 @@ class HTTPRequests(HTTPRequestsBase):
                 param_value = None
             if param_key and param_value:
                 payload[param_key] = param_value
-        if payload and not self.data.form_encode_data:
+        if payload and not self.data().form_encode_data():
             payload = json.dumps(payload)
         return payload
