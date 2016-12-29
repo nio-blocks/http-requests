@@ -15,6 +15,7 @@ Properties
 -   **headers**: Custom Headers. Keys and Values are Expression Properties.
 -   **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.
 -   **verify**: For https, check a host's SSL certificate. Default value for the block is `True`, the same as the [requests library](http://docs.python-requests.org/en/master/user/advanced/#ssl-cert-verification).
+-   **timeout**: Timeout in seconds for each request, if empty or 0 then requests will not time out.
 
 
 Dependencies

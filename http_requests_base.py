@@ -4,7 +4,7 @@ from enum import Enum
 import requests
 from nio.block.base import Block
 from nio.block.mixins.enrich.enrich_signals import EnrichSignals, EnrichProperties
-from nio.properties import Property
+from nio.properties import Property, IntProperty
 from nio.properties.bool import BoolProperty
 from nio.properties.holder import PropertyHolder
 from nio.properties.list import ListProperty
@@ -58,7 +58,9 @@ class HTTPRequestsBase(EnrichSignals, Block):
     headers = ListProperty(Header, title="Headers", default=[])
     require_json = BoolProperty(title="Require JSON Response", default=False)
     verify = BoolProperty(
-        title="Verify host's SSL certificate", default=True, visible=False)
+        title="Verify host's SSL certificate", default=True, visible=False
+    )
+    timeout = IntProperty(title='Request Timeout', default=0, allow_none=True)
 
     # TODO: remove this when mixin in framework is fixed
     enrich = ObjectProperty(EnrichProperties,
@@ -82,16 +84,16 @@ class HTTPRequestsBase(EnrichSignals, Block):
                 "Failed to evaluate url {}: {}".format(url, e)
             )
             return
+        timeout = self.timeout(signal) if self.timeout(signal) else None
         auth = self._create_auth()
         payload = self._create_payload(signal)
         headers = self._create_headers(signal)
 
         try:
-            r = self._execute_request(url, auth, payload, headers)
-        except Exception as e:
-            self.logger.warning("Bad Http Request: {0}".format(e))
+            r = self._execute_request(url, auth, payload, headers, timeout)
+        except:
+            self.logger.warning("Bad Http Request", exc_info=True)
             return
-
         if 200 <= r.status_code < 300:
             return self._process_response(r, signal)
         else:
@@ -102,9 +104,8 @@ class HTTPRequestsBase(EnrichSignals, Block):
                     r.status_code
                 )
             )
-            return [signal]
 
-    def _execute_request(self, url, auth, data, headers):
+    def _execute_request(self, url, auth, data, headers, timeout):
         try:
             method_name = self.http_method().value
         except:
@@ -116,7 +117,7 @@ class HTTPRequestsBase(EnrichSignals, Block):
             method = getattr(requests, method_name)
 
         return method(url, auth=auth, data=data, headers=headers,
-                      verify=self.verify())
+                      verify=self.verify(), timeout=timeout)
 
     def _process_response(self, response, signal):
         result = []
