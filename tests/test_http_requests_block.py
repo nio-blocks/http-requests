@@ -21,14 +21,24 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block = HTTPRequests()
         self.configure_block(block, {})
         with patch('requests.get') as get:
-            block._execute_request('url', None, None, None)
+            block._execute_request('url', None, None, None, timeout=10)
             get.assert_called_once_with(
-                'url', auth=None, data=None, headers=None, verify=True)
+                'url',
+                auth=None,
+                data=None,
+                headers=None,
+                verify=True,
+                timeout=10)
         self.configure_block(block, {'verify': False})
         with patch('requests.get') as get:
-            block._execute_request('url', None, None, None)
+            block._execute_request('url', None, None, None, timeout=10)
             get.assert_called_once_with(
-                'url', auth=None, data=None, headers=None, verify=False)
+                'url',
+                auth=None,
+                data=None,
+                headers=None,
+                verify=False,
+                timeout=10)
 
     def test_create_payload(self):
         block = HTTPRequests()
@@ -151,7 +161,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
     @patch('requests.get')
-    def test_get_with_enrich_signal_empty(self, mock_get):
+    def test_default_configuration(self, mock_get):
         url = "http://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
@@ -164,13 +174,20 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         })
         block.start()
         block.process_signals([Signal({'input_attr': 'value'})])
-        self.assertTrue(mock_get.called)
+        mock_get.assert_called_once_with(
+            url,
+            auth=None,
+            data={},
+            headers={},
+            verify=True,
+            timeout=None
+        )
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].url, url)
         self.assertFalse(hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
         block.stop()
 
     @patch('requests.get')
-    def test_get_with_enrich_signal(self, mock_get):
+    def test_enriched_signals(self, mock_get):
         url = "http://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
@@ -197,6 +214,33 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         self.assertTrue(mock_get.called)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
+        block.stop()
+
+    @patch('requests.get')
+    def test_timeout(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "timeout": 10
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        mock_get.assert_called_once_with(
+            url,
+            auth=None,
+            data={},
+            headers={},
+            verify=True,
+            timeout=10
+        )
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].url, url)
+        self.assertFalse(hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
         block.stop()
 
     @patch('requests.get')
@@ -252,4 +296,35 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].response['url'], url2)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value')
+        block.stop()
+
+    @patch('requests.get')
+    def test_request_exceptions(self, mock_get):
+        from requests.exceptions import Timeout
+        url = "http://httpbin.org/get"
+        block = HTTPRequests()
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.side_effect = [
+            Timeout,
+            resp
+        ]
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url,
+            "timeout": 10,
+            "enrich": {
+                "exclude_existing": False,
+                "enrich_field": "response"
+            }
+        })
+        block.start()
+        block.process_signals([
+            Signal({'input_attr': 'value1'}),
+            Signal({'input_attr': 'value2'})
+        ])
+        self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 1)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value2')
         block.stop()
