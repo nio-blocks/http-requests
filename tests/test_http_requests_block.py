@@ -187,6 +187,25 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
     @patch('requests.get')
+    def test_thread_locks(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value={'url': url})
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        block._locked_process_signals = MagicMock()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "url": url
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        assert block._locked_process_signals.called
+        block.stop()
+
+
+    @patch('requests.get')
     def test_enriched_signals(self, mock_get):
         url = "http://httpbin.org/get"
         resp = MagicMock()
