@@ -1,4 +1,5 @@
 from threading import Event
+from nio.util.threading import spawn
 from unittest.mock import MagicMock, patch
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
@@ -16,7 +17,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         super().signals_notified(block, signals, output_id)
         self.event.set()
         self.event.clear()
-
+    
     def test_execute_request_verify_flag(self):
         block = HTTPRequests()
         self.configure_block(block, {})
@@ -194,16 +195,29 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         resp.json = MagicMock(return_value={'url': url})
         mock_get.return_value = resp
         block = HTTPRequests()
-        block._locked_process_signals = MagicMock()
+
+        def _dummy_process_signals(signals):
+            Event().wait()
+
         self.configure_block(block, {
             "http_method": "GET",
             "url": url
         })
+        block.logger = MagicMock()
+        block._locked_process_signals = MagicMock(
+            side_effect = _dummy_process_signals
+        )
         block.start()
+        # first 5 signals should be blocked, sixth signal is dropped and logs
+        # warning
+        for r in range(5):
+            spawn(
+                block.process_signals, [Signal({'input_attr': 'value'})]
+            )
         block.process_signals([Signal({'input_attr': 'value'})])
-        assert block._locked_process_signals.called
+        self.assertEqual(block.logger.warning.call_count, 1)
+        self.assertTrue(block._locked_process_signals.call_count == 1)
         block.stop()
-
 
     @patch('requests.get')
     def test_enriched_signals(self, mock_get):
