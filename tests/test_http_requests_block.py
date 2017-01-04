@@ -17,7 +17,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         super().signals_notified(block, signals, output_id)
         self.event.set()
         self.event.clear()
-    
+
     def test_execute_request_verify_flag(self):
         block = HTTPRequests()
         self.configure_block(block, {})
@@ -216,7 +216,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
             )
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertEqual(block.logger.warning.call_count, 1)
-        self.assertTrue(block._locked_process_signals.call_count == 1)
+        self.assertEqual(block._locked_process_signals.call_count, 1)
         block.stop()
 
     @patch('requests.get')
