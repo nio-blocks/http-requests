@@ -342,12 +342,14 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         mock_get.side_effect = [
             Timeout,
             Timeout,
+            Timeout,
             resp,
         ]
         self.configure_block(block, {
             "http_method": "GET",
             "url": url,
             "timeout": 10,
+            "log_level": "DEBUG",
             "enrich": {
                 "exclude_existing": False,
                 "enrich_field": "response"
