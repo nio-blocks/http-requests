@@ -1,18 +1,12 @@
 import json
+import requests
 from enum import Enum
 
-import requests
 from nio.block.base import Block
-from nio.block.mixins.enrich.enrich_signals import EnrichSignals, \
-        EnrichProperties
-from nio.block.mixins.limit_lock.limit_lock import LimitLock
-from nio.properties import Property, IntProperty
-from nio.properties.bool import BoolProperty
-from nio.properties.holder import PropertyHolder
-from nio.properties.list import ListProperty
-from nio.properties.object import ObjectProperty
-from nio.properties.select import SelectProperty
-from nio.properties.string import StringProperty
+from nio.block.mixins import Retry, EnrichSignals, LimitLock
+from nio.properties import (Property, IntProperty, BoolProperty,
+                            PropertyHolder, ListProperty, ObjectProperty,
+                            SelectProperty, StringProperty)
 from nio.util.discovery import not_discoverable
 
 
@@ -36,7 +30,7 @@ class HTTPMethod(Enum):
 
 
 @not_discoverable
-class HTTPRequestsBase(EnrichSignals, LimitLock, Block):
+class HTTPRequestsBase(Retry, EnrichSignals, LimitLock, Block):
 
     """ A base for Blocks that makes HTTP Requests.
 
@@ -63,11 +57,6 @@ class HTTPRequestsBase(EnrichSignals, LimitLock, Block):
         title="Verify host's SSL certificate", default=True, visible=False
     )
     timeout = IntProperty(title='Request Timeout', default=0, allow_none=True)
-
-    # TODO: remove this when mixin in framework is fixed
-    enrich = ObjectProperty(EnrichProperties,
-                            title='Signal Enrichment',
-                            default=EnrichProperties())
 
     def process_signals(self, signals):
         try:
@@ -101,10 +90,12 @@ class HTTPRequestsBase(EnrichSignals, LimitLock, Block):
         headers = self._create_headers(signal)
 
         try:
-            r = self._execute_request(url, auth, payload, headers, timeout)
+            r = self.execute_with_retry(self._execute_request,
+                                        url, auth, payload, headers, timeout)
         except:
-            self.logger.warning("Bad Http Request", exc_info=True)
+            # out of retries for this signal
             return
+
         if 200 <= r.status_code < 300:
             return self._process_response(r, signal)
         else:
@@ -117,15 +108,7 @@ class HTTPRequestsBase(EnrichSignals, LimitLock, Block):
             )
 
     def _execute_request(self, url, auth, data, headers, timeout):
-        try:
-            method_name = self.http_method().value
-        except:
-            method_name = HTTPMethod.GET.value
-            self.logger.debug(
-                "Invalid HTTP method selection. Defaulting to GET."
-            )
-        finally:
-            method = getattr(requests, method_name)
+        method = getattr(requests, self.http_method().value)
 
         return method(url, auth=auth, data=data, headers=headers,
                       verify=self.verify(), timeout=timeout)
