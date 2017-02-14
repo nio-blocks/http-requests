@@ -341,15 +341,22 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         resp.json = MagicMock(return_value={'url': url})
         mock_get.side_effect = [
             Timeout,
-            resp
+            Timeout,
+            Timeout,
+            resp,
         ]
         self.configure_block(block, {
             "http_method": "GET",
             "url": url,
             "timeout": 10,
+            "log_level": "DEBUG",
             "enrich": {
                 "exclude_existing": False,
                 "enrich_field": "response"
+            },
+            "retry_options": {
+                "max_retry": 1,
+                "multiplier": 0
             }
         })
         block.start()
@@ -357,7 +364,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
             Signal({'input_attr': 'value1'}),
             Signal({'input_attr': 'value2'})
         ])
+        block.stop()
+
         self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 1)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value2')
-        block.stop()
