@@ -131,17 +131,19 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
             "http_method": "GET",
             "url": url
         })
-        block.start()
         block.logger.warning = MagicMock()
         signals = [Signal()]
+
+        block.start()
         block.process_signals(signals)
-        self.assertTrue(mock_get.called)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL], signals)
+        block.stop()
+
         block.logger.warning.assert_called_once_with(
             'HTTPMethod.GET request to http://httpbin.org/get '
             'returned with response code: 400'
         )
-        block.stop()
+        self.assertTrue(mock_get.called)
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL], [])
 
     def test_post(self):
         url = "http://httpbin.org/post"
