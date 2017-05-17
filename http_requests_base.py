@@ -57,11 +57,12 @@ class HTTPRequestsBase(Retry, EnrichSignals, LimitLock, Block):
         title="Verify host's SSL certificate", default=True, visible=False
     )
     timeout = IntProperty(title='Request Timeout', default=0, allow_none=True)
+    max_locks = IntProperty(title='Max Thread Locks', default=5, visible=False)
 
     def process_signals(self, signals):
         try:
             self.execute_with_lock(
-                self._locked_process_signals, 5, signals=signals
+                self._locked_process_signals, self.max_locks(), signals=signals
             )
         except:
             # a warning has already been logged by LimitLock mixin
