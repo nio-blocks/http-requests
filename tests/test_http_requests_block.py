@@ -352,12 +352,14 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
             "log_level": "DEBUG",
             "enrich": {
                 "exclude_existing": False,
-                "enrich_field": "response"
+                "enrich_field": "response",
             },
             "retry_options": {
                 "max_retry": 1,
-                "multiplier": 0
-            }
+                "multiplier": 0,
+                "indefinite": False,
+                "strategy": "linear",
+            },
         })
         block.start()
         block.process_signals([
