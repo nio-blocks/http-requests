@@ -3,7 +3,7 @@ import requests
 from enum import Enum
 
 from nio.block.base import Block
-from nio.block.mixins import Retry, EnrichSignals, LimitLock
+from nio.block.mixins import Retry, EnrichSignals
 from nio.properties import (Property, IntProperty, BoolProperty,
                             PropertyHolder, ListProperty, ObjectProperty,
                             SelectProperty, StringProperty)
@@ -30,7 +30,7 @@ class HTTPMethod(Enum):
 
 
 @not_discoverable
-class HTTPRequestsBase(Retry, EnrichSignals, LimitLock, Block):
+class HTTPRequestsBase(Retry, EnrichSignals, Block):
 
     """ A base for Blocks that makes HTTP Requests.
 
@@ -59,15 +59,6 @@ class HTTPRequestsBase(Retry, EnrichSignals, LimitLock, Block):
     timeout = IntProperty(title='Request Timeout', default=0, allow_none=True)
 
     def process_signals(self, signals):
-        try:
-            self.execute_with_lock(
-                self._locked_process_signals, 5, signals=signals
-            )
-        except:
-            # a warning has already been logged by LimitLock mixin
-            pass
-
-    def _locked_process_signals(self, signals):
         new_signals = []
         for signal in signals:
             new_sigs = self._make_request(signal)
