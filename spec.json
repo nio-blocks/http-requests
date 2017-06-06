@@ -1,0 +1,43 @@
+{
+  "nio/HTTPRequests": {
+    "Output": "If the response body is json, then the body is output as a new Signal.\nIf the response body is a list of json, then a list is output with a new Signal for each json dict in the body.\nIf the response body is not json, then the raw text of the response is output on a new Signal as `raw`.\n```python\n{\n'raw': '<html>Raw html page... boring</html>',\n}\n```\nThe request's [requests.Response](http://docs.python-requests.org/en/latest/api/#requests.Response) is appended to each output signal as a dictionary in the hidden attribute `_resp`. TODO: Make this a configurable attribute with the EnrichSignals mixin.\nExample `_resp` for `requests.Response().__dict__`:\n```python\n{\n'_resp': {\n'status_code': None,\n'history': [],\n'reason': None,\n'raw': None,\n'_content_consumed': False,\n'elapsed': datetime.timedelta(0),\n'_content': False,\n'headers': CaseInsensitiveDict({}),\n'url': None,\n'cookies': <<class 'requests.cookies.RequestsCookieJar'>[]>,\n'encoding': None\n}\n}\n```",
+    "Category": "WebService",
+    "Properties": {
+      "timeout": {
+        "description": "Timeout in seconds for each request, if empty or 0 then requests will not time out."
+      },
+      "data": {
+        "description": "URL Parameters. Keys and Values are Expression Properties."
+      },
+      "require_json": {
+        "description": "If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`."
+      },
+      "verify": {
+        "description": "For https, check a host's SSL certificate. Default value for the block is `True`, the same as the requests library."
+      },
+      "basic_auth_creds": {
+        "description": "When making a request that needs Basic Authentication, enter the username and password."
+      },
+      "url": {
+        "description": "URL to make request to. Expression property."
+      },
+      "http_method": {
+        "e.g.": "GET|POST|PUT|DELETE",
+        "description": "HTTP Method."
+      },
+      "headers": {
+        "description": "Custom Headers. Keys and Values are Expression Properties."
+      }
+    },
+    "Dependencies": [
+      "-   [requests](https://pypi.python.org/pypi/requests/)"
+    ],
+    "Input": "Any list of signals. Signal attributes can be used for `url` and `data`.",
+    "Commands": {},
+    "Description": "A Block that makes HTTP requests.\nOne request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
+    "Miscellaneous": {
+      "Example Usage": "**Trigger block commands.** Set the url to\n```\nhttp://{{$host}}:{{$port}}/services/{{$service_name}}/{{$block_name}}/{{$command_name}}\n```\nand make sure to set the Basic Authentication for your nio instance. Anytime a signal is input to this block, the command will be called. One use case is to reset a counter block on a given interval.\nNOTE: This example is superseded by the [NioCommand](https://github.com/nio-blocks/nio_command) block."
+    },
+    "Version": "1.0.0"
+  }
+}
