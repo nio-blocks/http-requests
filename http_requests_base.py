@@ -159,7 +159,7 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
             self.logger.debug("{} request to {} returned with response code: "
                               "{}. Response: {}"
                               .format(self.http_method(),
-                                      self.url(),
+                                      self.url(signal),
                                       response.status_code,
                                       [res.to_dict() for res in result]))
             return result
