@@ -97,6 +97,7 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
                     r.status_code
                 )
             )
+            return self._process_response(r, signal)
 
     def _execute_request(self, url, auth, data, headers, timeout):
         method = getattr(requests, self.http_method().value)
