@@ -101,8 +101,8 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
     def _execute_request(self, url, auth, data, headers, timeout):
         method = getattr(requests, self.http_method().value)
 
-        self.logger.debug("Executing http {} request to {} with data: {}"
-                          .format(self.http_method().value, url,
+        self.logger.debug("Executing {} request to {} with data: {}"
+                          .format(self.http_method(), url,
                                   {"auth": auth, "data": data,
                                    "headers": headers, "timeout": timeout}))
 
