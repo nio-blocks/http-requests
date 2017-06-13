@@ -162,7 +162,7 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
                               .format(self.http_method(),
                                       self.url(signal),
                                       response.status_code,
-                                      [res.to_dict() for res in result]))
+                                      response.__dict__))
             return result
 
     def _create_auth(self):
