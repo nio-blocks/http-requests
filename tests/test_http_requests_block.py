@@ -323,7 +323,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
                 "enrich_field": "response"
             },
             "retry_options": {
-                "max_retry": 1,
+                "max_retry": 2,
                 "multiplier": 0
             }
         })

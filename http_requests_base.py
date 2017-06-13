@@ -97,9 +97,15 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
                     r.status_code
                 )
             )
+            return self._process_response(r, signal)
 
     def _execute_request(self, url, auth, data, headers, timeout):
         method = getattr(requests, self.http_method().value)
+
+        self.logger.debug("Executing {} request to {} with data: {}"
+                          .format(self.http_method(), url,
+                                  {"auth": auth, "data": data,
+                                   "headers": headers, "timeout": timeout}))
 
         return method(url, auth=auth, data=data, headers=headers,
                       verify=self.verify(), timeout=timeout)
@@ -150,6 +156,13 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
                     sig._resp = response.__dict__
                 except:
                     self.logger.warning("Response failed to save to signal")
+
+            self.logger.debug("{} request to {} returned with response code: "
+                              "{}. Response: {}"
+                              .format(self.http_method(),
+                                      self.url(signal),
+                                      response.status_code,
+                                      response.__dict__))
             return result
 
     def _create_auth(self):
