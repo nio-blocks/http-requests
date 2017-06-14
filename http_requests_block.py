@@ -46,16 +46,9 @@ class HTTPRequests(HTTPRequestsBase):
     def _create_payload(self, signal):
         payload = {}
         for param in self.data().params():
-            try:
-                param_key = param.key(signal)
-            except Exception:
-                param_key = None
-            try:
-                param_value = param.value(signal)
-            except Exception:
-                param_value = None
-            if param_key and param_value:
-                payload[param_key] = param_value
+            param_key = param.key(signal)
+            param_value = param.value(signal)
+            payload[param_key] = param_value
         if payload and not self.data().form_encode_data():
             payload = json.dumps(payload)
         return payload
