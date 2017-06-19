@@ -72,7 +72,8 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
             url = self.url(signal)
         except Exception as e:
             self.logger.warning(
-                "Failed to evaluate url {}: {}".format(self.url(), e)
+                "Failed to evaluate url {} for incoming signal {}: {}"
+                .format(self.url.value, signal.to_dict(), e)
             )
             return
         timeout = self.timeout(signal) if self.timeout(signal) else None
