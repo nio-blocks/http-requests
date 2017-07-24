@@ -340,7 +340,6 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_non_json_response(self, mock_get):
-        url = "http://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value=18)
@@ -357,7 +356,6 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_json_required_non_json_response(self, mock_get):
-        url = "http://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value=18)
