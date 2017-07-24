@@ -131,9 +131,8 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
 
             # otherwise, no dice on parsing the response body
             else:
-                self.logger.warning("Response body could not be parsed into "
+                raise ValueError("Response body could not be parsed into "
                                      "Signal(s): {}".format(data))
-                result = [signal]
         except ValueError:
             if not self.require_json():
                 result = [self.get_output_signal(
