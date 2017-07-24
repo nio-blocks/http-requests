@@ -337,3 +337,37 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 1)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value2')
+
+    @patch('requests.get')
+    def test_non_json_response(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value=18)
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "require_json": False
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        block.stop()
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].raw, resp.text)
+
+    @patch('requests.get')
+    def test_json_required_non_json_response(self, mock_get):
+        url = "http://httpbin.org/get"
+        resp = MagicMock()
+        resp.status_code = 200
+        resp.json = MagicMock(return_value=18)
+        mock_get.return_value = resp
+        block = HTTPRequests()
+        self.configure_block(block, {
+            "http_method": "GET",
+            "require_json": True
+        })
+        block.start()
+        block.process_signals([Signal({'input_attr': 'value'})])
+        block.stop()
+        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
