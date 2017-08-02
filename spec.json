@@ -1,121 +1,18 @@
 {
   "nio/HTTPRequests": {
-    "Commands": {},
-    "Dependencies": [],
-    "Description": "A Block that makes HTTP requests.\nOne request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
-    "Input": {
-      "Description": "Any list of signals. Signal attributes can be used for `url` and `data`."
-    },
-    "Output": {
-      "Description": "If the response body is json, then the body is output as a new Signal.\nIf the response body is a list of json, then a list is output with a new Signal for each json dict in the body.\nIf the response body is not json, then the raw text of the response is output on a new Signal as `raw`.\n```python\n{\n'raw': '<html>Raw html page... boring</html>',\n}\n```\nThe request's [requests.Response](http://docs.python-requests.org/en/latest/api/#requests.Response) is appended to each output signal as a dictionary in the hidden attribute `_resp`. TODO: Make this a configurable attribute with the EnrichSignals mixin.\nExample `_resp` for `requests.Response().__dict__`:\n```python\n{\n'_resp': {\n'status_code': None,\n'history': [],\n'reason': None,\n'raw': None,\n'_content_consumed': False,\n'elapsed': datetime.timedelta(0),\n'_content': False,\n'headers': CaseInsensitiveDict({}),\n'url': None,\n'cookies': <<class 'requests.cookies.RequestsCookieJar'>[]>,\n'encoding': None\n}\n}\n```"
-    },
-    "Properties": {
-      "Credentials (BasicAuth)": {
-        "default": {
-          "password": null,
-          "username": null
-        },
-        "description": ""
-      },
-      "HTTP Method": {
-        "default": "get",
-        "description": ""
-      },
-      "Headers": {
-        "description": ""
-      },
-      "Parameters": {
-        "default": {
-          "form_encode_data": false,
-          "params": []
-        },
-        "description": ""
-      },
-      "Request Timeout": {
-        "description": ""
-      },
-      "Require JSON Response": {
-        "description": ""
-      },
-      "Retry Options": {
-        "default": {
-          "indefinite": false,
-          "max_retry": 5,
-          "multiplier": 1,
-          "strategy": "linear"
-        },
-        "description": ""
-      },
-      "Signal Enrichment": {
-        "default": {
-          "enrich_field": "",
-          "exclude_existing": true
-        },
-        "description": ""
-      },
-      "URL Target": {
-        "default": "http://127.0.0.1:8181",
-        "description": ""
-      },
-      "Verify host's SSL certificate": {
-        "default": true,
-        "description": ""
-      }
-    },
-    "Version": "0.0.0"
+    "version": "0.0.1",
+    "description": "",
+    "inputs": {},
+    "outputs": {},
+    "properties": {},
+    "commands": {}
   },
   "nio/HTTPRequestsPostSignal": {
-    "Commands": {},
-    "Dependencies": [],
-    "Description": "",
-    "Input": "",
-    "Output": "",
-    "Properties": {
-      "Credentials (BasicAuth)": {
-        "default": {
-          "password": null,
-          "username": null
-        },
-        "description": ""
-      },
-      "HTTP Method": {
-        "default": "post",
-        "description": ""
-      },
-      "Headers": {
-        "description": ""
-      },
-      "Request Timeout": {
-        "description": ""
-      },
-      "Require JSON Response": {
-        "description": ""
-      },
-      "Retry Options": {
-        "default": {
-          "indefinite": false,
-          "max_retry": 5,
-          "multiplier": 1,
-          "strategy": "linear"
-        },
-        "description": ""
-      },
-      "Signal Enrichment": {
-        "default": {
-          "enrich_field": "",
-          "exclude_existing": true
-        },
-        "description": ""
-      },
-      "URL Target": {
-        "default": "http://127.0.0.1:8181",
-        "description": ""
-      },
-      "Verify host's SSL certificate": {
-        "default": true,
-        "description": ""
-      }
-    },
-    "Version": "0.0.0"
+    "version": "0.0.1",
+    "description": "",
+    "inputs": {},
+    "outputs": {},
+    "properties": {},
+    "commands": {}
   }
 }
