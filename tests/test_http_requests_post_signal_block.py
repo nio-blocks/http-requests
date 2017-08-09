@@ -1,8 +1,10 @@
 from threading import Event
 from unittest.mock import patch, MagicMock
+
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
 from nio.testing.block_test_case import NIOBlockTestCase
+
 from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 
 
@@ -52,7 +54,8 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal()])
         self.assertTrue(mock_get.called)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].raw, 'not json')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].raw, 'not json')
         block.stop()
 
     @patch('requests.get')
@@ -160,8 +163,10 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         )
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
-        self.assertEqual('value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
+        self.assertEqual(
+            'value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
+        self.assertEqual(
+            'value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
         block.stop()
 
     def test_post2(self):
@@ -175,6 +180,8 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.process_signals([Signal({'string': 'text', 'int': 1})])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
-        self.assertEqual(1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
+        self.assertEqual(
+            'text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
+        self.assertEqual(
+            1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
         block.stop()

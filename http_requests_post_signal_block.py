@@ -1,9 +1,7 @@
 from .http_requests_base import HTTPRequestsBase, HTTPMethod
-from nio.properties import SelectProperty
-from nio.util.discovery import discoverable
+from nio.properties import SelectProperty, VersionProperty
 
 
-@discoverable
 class HTTPRequestsPostSignal(HTTPRequestsBase):
 
     """ A Block that makes HTTP Requests.
@@ -17,7 +15,7 @@ class HTTPRequestsPostSignal(HTTPRequestsBase):
         http_method (select): HTTP method (ex. GET, POST,
             PUT, DELETE, etc).
     """
-
+    version = VersionProperty('0.1.0')
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.POST,

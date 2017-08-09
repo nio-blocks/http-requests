@@ -1,9 +1,10 @@
 from threading import Event
-from nio.util.threading import spawn
 from unittest.mock import MagicMock, patch
+
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
 from nio.testing.block_test_case import NIOBlockTestCase
+
 from ..http_requests_block import HTTPRequests
 
 
@@ -78,8 +79,10 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
-        self.assertEqual('value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
+        self.assertEqual(
+            'value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
+        self.assertEqual(
+            'value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
         block.stop()
 
     def test_post2(self):
@@ -100,8 +103,10 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
-        self.assertEqual(1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
+        self.assertEqual(
+            'text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
+        self.assertEqual(
+            1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
         block.stop()
 
     def test_post_form(self):
@@ -123,8 +128,10 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('value1', self.last_notified[DEFAULT_TERMINAL][0].form['key1'])
-        self.assertEqual('value2', self.last_notified[DEFAULT_TERMINAL][0].form['key2'])
+        self.assertEqual(
+            'value1', self.last_notified[DEFAULT_TERMINAL][0].form['key1'])
+        self.assertEqual(
+            'value2', self.last_notified[DEFAULT_TERMINAL][0].form['key2'])
         block.stop()
 
     def test_post_expr(self):
@@ -145,7 +152,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
                                        'val': 'cheers'})])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual('cheers', self.last_notified[DEFAULT_TERMINAL][0].json['greeting'])
+        self.assertEqual(
+            'cheers', self.last_notified[DEFAULT_TERMINAL][0].json['greeting'])
         block.stop()
 
     def test_resp_attr(self):
@@ -158,7 +166,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.event.wait(2)
         self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual(200, self.last_notified[DEFAULT_TERMINAL][0]._resp['status_code'])
+        self.assertEqual(
+            200, self.last_notified[DEFAULT_TERMINAL][0]._resp['status_code'])
         block.stop()
 
     @patch('requests.get')
@@ -184,7 +193,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
             timeout=None
         )
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].url, url)
-        self.assertFalse(hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
+        self.assertFalse(
+            hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
         block.stop()
 
     @patch('requests.get')
@@ -213,8 +223,10 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertTrue(mock_get.called)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
         block.stop()
 
     @patch('requests.get')
@@ -241,7 +253,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
             timeout=10
         )
         self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].url, url)
-        self.assertFalse(hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
+        self.assertFalse(
+            hasattr(self.last_notified[DEFAULT_TERMINAL][0], 'input_attr'))
         block.stop()
 
     @patch('requests.get')
@@ -267,10 +280,14 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         ])
         self.assertEqual(mock_get.call_count, 2)
         self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 2)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].response['url'], url)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value1')
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value2')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][1].response['url'], url)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value1')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value2')
         block.stop()
 
     @patch('requests.get')
@@ -293,10 +310,14 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertTrue(mock_get.called)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].response['url'], url2)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][1].response['url'], url2)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][1].input_attr, 'value')
         block.stop()
 
     @patch('requests.get')
@@ -335,5 +356,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
         self.assertEqual(len(self.last_notified[DEFAULT_TERMINAL]), 1)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
-        self.assertEqual(self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value2')
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
+        self.assertEqual(
+            self.last_notified[DEFAULT_TERMINAL][0].input_attr, 'value2')
