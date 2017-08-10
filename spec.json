@@ -6,7 +6,7 @@
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
         "type": "ObjectType",
-        "description": "",
+        "description": "When making a request that needs Basic Authentication, enter the username and password.",
         "default": {
           "password": null,
           "username": null
@@ -15,7 +15,7 @@
       "data": {
         "title": "Parameters",
         "type": "ObjectType",
-        "description": "",
+        "description": "URL Parameters. Keys and Values are Expression Properties.",
         "default": {
           "form_encode_data": false,
           "params": []
@@ -24,7 +24,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "",
+        "description": "If true, include the original signal along with the output signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -33,25 +33,25 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "",
+        "description": "Custom Headers. Keys and Values are Expression Properties.",
         "default": []
       },
       "http_method": {
         "title": "HTTP Method",
         "type": "SelectType",
-        "description": "",
+        "description": "HTTP Method (e.g. GET|POST|PUT|DELETE).",
         "default": "get"
       },
       "require_json": {
         "title": "Require JSON Response",
         "type": "BoolType",
-        "description": "",
+        "description": "If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.",
         "default": false
       },
       "retry_options": {
         "title": "Retry Options",
         "type": "ObjectType",
-        "description": "",
+        "description": "Configurables for retrying to connect on request failure.",
         "default": {
           "max_retry": 5,
           "strategy": "linear",
@@ -62,19 +62,19 @@
       "timeout": {
         "title": "Request Timeout",
         "type": "IntType",
-        "description": "",
+        "description": "Timeout in seconds for each request, if empty or 0 then requests will not time out.",
         "default": 0
       },
       "url": {
         "title": "URL Target",
         "type": "Type",
-        "description": "",
+        "description": "URL to make request to.",
         "default": "http://127.0.0.1:8181"
       },
       "verify": {
         "title": "Verify host's SSL certificate",
         "type": "BoolType",
-        "description": "",
+        "description": "For https, check a host's SSL certificate. Default value for the block is True, the same as the requests library.",
         "default": true
       }
     },
