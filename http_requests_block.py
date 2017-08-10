@@ -1,8 +1,7 @@
 import json
 
 from .http_requests_base import HTTPRequestsBase, HTTPMethod
-from nio.util.discovery import discoverable
-from nio.properties import PropertyHolder, Property, \
+from nio.properties import PropertyHolder, Property, VersionProperty, \
     ObjectProperty, BoolProperty, ListProperty, SelectProperty
 
 
@@ -17,7 +16,6 @@ class Data(PropertyHolder):
                                     title="Form-Encode Data?")
 
 
-@discoverable
 class HTTPRequests(HTTPRequestsBase):
 
     """ A Block that makes HTTP Requests.
@@ -34,7 +32,7 @@ class HTTPRequests(HTTPRequestsBase):
         headers (list(dict)): Custom headers.
 
     """
-
+    version = VersionProperty('0.1.0')
     data = ObjectProperty(Data, title="Parameters", default=Data())
 
     http_method = SelectProperty(

@@ -6,7 +6,7 @@ from nio.block.base import Block
 from nio.block.mixins import Retry, EnrichSignals
 from nio.properties import (Property, IntProperty, BoolProperty,
                             PropertyHolder, ListProperty, ObjectProperty,
-                            SelectProperty, StringProperty)
+                            SelectProperty, StringProperty, VersionProperty)
 from nio.util.discovery import not_discoverable
 
 
@@ -40,7 +40,7 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
         http_method (select): HTTP method (ex. GET, POST,
             PUT, DELETE, etc).
     """
-
+    version = VersionProperty('0.1.0')
     url = Property(title='URL Target',
                    default="http://127.0.0.1:8181")
     basic_auth_creds = ObjectProperty(BasicAuthCreds,
