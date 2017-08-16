@@ -1,12 +1,12 @@
 {
   "nio/HTTPRequests": {
     "language": "Python",
-    "reference": "git@github.com:nio-blocks/http_requests.git@v0.1.0",
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "url": "git://github.com/nio-blocks/http_requests.git"
   },
   "nio/HTTPRequestsPostSignal": {
     "language": "Python",
-    "reference": "git@github.com:nio-blocks/http_requests.git@v0.1.0",
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "url": "git://github.com/nio-blocks/http_requests.git"
   }
 }
