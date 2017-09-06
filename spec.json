@@ -2,6 +2,10 @@
   "nio/HTTPRequests": {
     "version": "0.1.0",
     "description": "A Block that makes HTTP requests.  One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
+    "categories": [
+      "Communication",
+      "Web Data"
+    ],
     "properties": {
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
@@ -93,6 +97,10 @@
   "nio/HTTPRequestsPostSignal": {
     "version": "0.1.0",
     "description": "",
+    "categories": [
+      "Communication",
+      "Web Data"
+    ],
     "properties": {
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
