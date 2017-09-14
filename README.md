@@ -68,7 +68,7 @@ NOTE: This example is superseded by the [NioCommand](https://github.com/nio-bloc
 
 HTTPRequestsPostSignal
 ======================
-
+Similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
 
 Properties
 ----------

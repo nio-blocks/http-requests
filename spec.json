@@ -96,7 +96,7 @@
   },
   "nio/HTTPRequestsPostSignal": {
     "version": "0.1.0",
-    "description": "",
+    "description": "Similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
     "categories": [
       "Communication",
       "Web Data"
