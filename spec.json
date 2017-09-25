@@ -1,7 +1,7 @@
 {
   "nio/HTTPRequests": {
     "version": "0.1.0",
-    "description": "A Block that makes HTTP requests.  One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
+    "description": "A block that makes HTTP requests. One request is made for every input signal. For each successful request, an output signal is created with the URL that was hit.",
     "categories": [
       "Communication",
       "Web Data"
@@ -10,7 +10,7 @@
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
         "type": "ObjectType",
-        "description": "When making a request that needs Basic Authentication, enter the username and password.",
+        "description": "When making a request that needs basic authentication, enter the username and password.",
         "default": {
           "password": null,
           "username": null
@@ -19,7 +19,7 @@
       "data": {
         "title": "Parameters",
         "type": "ObjectType",
-        "description": "URL Parameters. Keys and Values are Expression Properties.",
+        "description": "URL parameters. Keys and values are expression properties.",
         "default": {
           "form_encode_data": false,
           "params": []
@@ -37,7 +37,7 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Custom Headers. Keys and values are expression properties.",
         "default": []
       },
       "http_method": {
@@ -49,7 +49,7 @@
       "require_json": {
         "title": "Require JSON Response",
         "type": "BoolType",
-        "description": "If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.",
+        "description": "If True and response is not JSON, log warning and do not emit a signal. If False and response is not JSON, emit a signal of format {'raw': response.text}.",
         "default": false
       },
       "retry_options": {
@@ -76,9 +76,9 @@
         "default": "http://127.0.0.1:8181"
       },
       "verify": {
-        "title": "Verify host's SSL certificate",
+        "title": "Verify Host's SSL certificate",
         "type": "BoolType",
-        "description": "For https, check a host's SSL certificate. Default value for the block is True, the same as the requests library.",
+        "description": "For HTTPS, check a host's SSL certificate. Default value for the block is True, the same as the requests library.",
         "default": true
       }
     },
@@ -89,7 +89,7 @@
     },
     "outputs": {
       "default": {
-        "description": "If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`."
+        "description": "If the response body is JSON, then the body is output as a new Signal.  If the response body is a list of JSON, then a list is output with a new Signal for each JSON dict in the body.  If the response body is not JSON, then the raw text of the response is output on a new Signal as `raw`."
       }
     },
     "commands": {}
@@ -105,7 +105,7 @@
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
         "type": "ObjectType",
-        "description": "When making a request that needs Basic Authentication, enter the username and password.",
+        "description": "When making a request that needs basic authentication, enter the username and password.",
         "default": {
           "password": null,
           "username": null
@@ -114,7 +114,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, the output signal will include the original signal sent into the block",
+        "description": "If true, the output signal will include the original signal sent into the block.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -123,7 +123,7 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Custom Headers. Keys and values are expression properties.",
         "default": []
       },
       "http_method": {
@@ -135,13 +135,13 @@
       "require_json": {
         "title": "Require JSON Response",
         "type": "BoolType",
-        "description": "If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.",
+        "description": "If `True` and response is not JSON, log warning and do not emit a signals. If `False` and response is not JSON, emit a signal of format `{'raw': response.text}`.",
         "default": false
       },
       "retry_options": {
         "title": "Retry Options",
         "type": "ObjectType",
-        "description": "How many times to retry to HTTP request",
+        "description": "How many times to retry to HTTP request.",
         "default": {
           "max_retry": 5,
           "strategy": "linear",
@@ -164,7 +164,7 @@
       "verify": {
         "title": "Verify host's SSL certificate",
         "type": "BoolType",
-        "description": "For https, check a host's SSL certificate. Default value for the block is `True`, the same as the requests library.",
+        "description": "For HTTPS, check a host's SSL certificate. Default value for the block is `True`, the same as the requests library.",
         "default": true
       }
     },
@@ -175,7 +175,7 @@
     },
     "outputs": {
       "default": {
-        "description": "If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`."
+        "description": "If the response body is JSON, then the body is output as a new Signal.  If the response body is a list of JSON, then a list is output with a new signal for each JSON dict in the body.  If the response body is not JSON, then the raw text of the response is output on a new signal as `raw`."
       }
     },
     "commands": {}
