@@ -1,12 +1,12 @@
 HTTPRequests
 ============
-A Block that makes HTTP requests.  One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.
+The HTTPReqeusts block sends an HTTP request for each item in the list of incoming signals. For each successful request, an output signal is created that includes the response from the request.
 
 Properties
 ----------
 - **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
 - **data**: URL Parameters. Keys and Values are Expression Properties.
-- **enrich**: If true, include the original signal along with the output signal.
+- **enrich**: If false (unchecked), include the original signal along with the output signal.
 - **headers**: Custom Headers. Keys and Values are Expression Properties.
 - **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
 - **require_json**: If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.
@@ -25,6 +25,7 @@ Outputs
 
 Commands
 --------
+None
 
 Dependencies
 ------------
@@ -68,12 +69,12 @@ NOTE: This example is superseded by the [NioCommand](https://github.com/nio-bloc
 
 HTTPRequestsPostSignal
 ======================
-Similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
+The HTTPRequestsPostSignal block is similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
 
 Properties
 ----------
 - **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
-- **enrich**: If true, the output signal will include the original signal sent into the block
+- **enrich**: If false (unchecked), the output signal will include the original signal sent into the block
 - **headers**: Custom Headers. Keys and Values are Expression Properties.
 - **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
 - **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.
@@ -92,4 +93,5 @@ Outputs
 
 Commands
 --------
+None
 

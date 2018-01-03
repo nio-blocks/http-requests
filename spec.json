@@ -1,7 +1,7 @@
 {
   "nio/HTTPRequests": {
     "version": "0.1.0",
-    "description": "A Block that makes HTTP requests.  One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
+    "description": "The HTTPReqeusts block sends an HTTP request for each item in the list of incoming signals. For each successful request, an output signal is created that includes the response from the request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -28,7 +28,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, include the original signal along with the output signal.",
+        "description": "If false (unchecked), include the original signal along with the output signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -96,7 +96,7 @@
   },
   "nio/HTTPRequestsPostSignal": {
     "version": "0.1.0",
-    "description": "Similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
+    "description": "The HTTPRequestsPostSignal block is similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -114,7 +114,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, the output signal will include the original signal sent into the block",
+        "description": "If false (unchecked), the output signal will include the original signal sent into the block",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
