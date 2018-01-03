@@ -1,7 +1,7 @@
 {
   "nio/HTTPRequests": {
     "version": "0.1.0",
-    "description": "The HTTPReqeusts block sends an HTTP request for each item in the list of incoming signals. For each successful request, an output signal is created that includes the response from the request.",
+    "description": "The HTTPRequests block sends a HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list.  For each successful request, an output signal is emitted that includes the response from the request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -10,7 +10,7 @@
       "basic_auth_creds": {
         "title": "Credentials (BasicAuth)",
         "type": "ObjectType",
-        "description": "When making a request that needs Basic Authentication, enter the username and password.",
+        "description": "The username and password for basic authentication if necessary for the request.",
         "default": {
           "password": null,
           "username": null
@@ -19,7 +19,7 @@
       "data": {
         "title": "Parameters",
         "type": "ObjectType",
-        "description": "URL Parameters. Keys and Values are Expression Properties.",
+        "description": "URL Parameters. Keys and Values can be simple strings or Expression Properties to use incoming signals.",
         "default": {
           "form_encode_data": false,
           "params": []
@@ -28,7 +28,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If false (unchecked), include the original signal along with the output signal.",
+        "description": "If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -37,7 +37,7 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.",
         "default": []
       },
       "http_method": {
@@ -96,7 +96,7 @@
   },
   "nio/HTTPRequestsPostSignal": {
     "version": "0.1.1",
-    "description": "The HTTPRequestsPostSignal block is similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
+    "description": "The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -114,7 +114,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If false (unchecked), the output signal will include the original signal sent into the block",
+        "description": "If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -123,7 +123,7 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.",
         "default": []
       },
       "http_method": {

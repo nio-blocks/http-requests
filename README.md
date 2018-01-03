@@ -1,13 +1,13 @@
 HTTPRequests
 ============
-The HTTPReqeusts block sends an HTTP request for each item in the list of incoming signals. For each successful request, an output signal is created that includes the response from the request.
+The HTTPRequests block sends a HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list.  For each successful request, an output signal is emitted that includes the response from the request.
 
 Properties
 ----------
-- **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
-- **data**: URL Parameters. Keys and Values are Expression Properties.
-- **enrich**: If false (unchecked), include the original signal along with the output signal.
-- **headers**: Custom Headers. Keys and Values are Expression Properties.
+- **basic_auth_creds**: The username and password for basic authentication if necessary for the request.
+- **data**: URL Parameters. Keys and Values can be simple strings or Expression Properties to use incoming signals.
+- **enrich**: If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.
+- **headers**: Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.
 - **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
 - **require_json**: If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.
 - **retry_options**: Configurables for retrying to connect on request failure.
@@ -69,13 +69,13 @@ NOTE: This example is superseded by the [NioCommand](https://github.com/nio-bloc
 
 HTTPRequestsPostSignal
 ======================
-The HTTPRequestsPostSignal block is similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
+The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
 
 Properties
 ----------
 - **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
-- **enrich**: If false (unchecked), the output signal will include the original signal sent into the block
-- **headers**: Custom Headers. Keys and Values are Expression Properties.
+- **enrich**: If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.
+- **headers**: Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.
 - **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
 - **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.
 - **retry_options**: How many times to retry to HTTP request
