@@ -1,19 +1,19 @@
 HTTPRequests
 ============
-The HTTPRequests block sends a HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list.  For each successful request, an output signal is emitted that includes the response from the request.
+The HTTPRequests block sends an HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list. For each successful request, an outgoing signal is emitted that includes the response from the request.
 
 Properties
 ----------
-- **basic_auth_creds**: The username and password for basic authentication if necessary for the request.
-- **data**: URL Parameters. Keys and Values can be simple strings or Expression Properties to use incoming signals.
-- **enrich**: If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.
-- **headers**: Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.
-- **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
-- **require_json**: If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.
-- **retry_options**: Configurables for retrying to connect on request failure.
-- **timeout**: Timeout in seconds for each request, if empty or 0 then requests will not time out.
-- **url**: URL to make request to.
-- **verify**: For https, check a host's SSL certificate. Default value for the block is True, the same as the requests library.
+- **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
+- **data**: URL parameters are key-value pairs that can appear in a URL path. Keys and values can be either simple strings or expression properties that use incoming signals.
+- **enrich**: If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.
+- **headers**: Create custom header content. Headers and values can be either simple strings or expression properties that use incoming signals.
+- **http_method**: HTTP request method (e.g., GET|POST|PUT|DELETE).
+- **require_json**: If `True` and response is not json, log a warning and do not emit a signal. If `False` and response is not json, emit a signal with the format `{'raw': response.text}`.
+- **retry_options**: A selection of options to choose from when retrying to make a connection.
+- **timeout**: Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.
+- **url**: Target URL for the request.
+- **verify**: A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
 
 Inputs
 ------
@@ -21,7 +21,7 @@ Inputs
 
 Outputs
 -------
-- **default**: If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`.
+- **default**: If the response body is json, then the body is output as a new signal. If the response body is a list of json, then a list is output with each json dict in the body acting as a new signal. If the response body is not json, then the raw text of the response is included in the outgoing signal as the value of the key `raw`.
 
 Commands
 --------
@@ -69,19 +69,19 @@ NOTE: This example is superseded by the [NioCommand](https://github.com/nio-bloc
 
 HTTPRequestsPostSignal
 ======================
-The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block.  One request is made for every signal input.  The input signal will be used as the body of the post request.
+The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block. One request is made for every signal input. The input signal will be used as the body of the post request.
 
 Properties
 ----------
 - **basic_auth_creds**: When making a request that needs Basic Authentication, enter the username and password.
-- **enrich**: If checked (true), the original signal sent into the block will be excluded from the signal sent out of the block. If unchecked (false), the output signal will include the original signal sent into the block.
-- **headers**: Custom Headers. Headers and Values can be simple strings or Expression Properties to use incoming signals.
-- **http_method**: HTTP Method (e.g. GET|POST|PUT|DELETE).
-- **require_json**: If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.
+- **enrich**: If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.
+- **headers**: Create custom header content. Headers and values can be either simple strings or expression properties that use incoming signals.
+- **http_method**: HTTP request method (e.g., GET|POST|PUT|DELETE).
+- **require_json**: If `True` and response is not json, log a warning and do not emit a signal. If `False` and response is not json, emit a signal with the format `{'raw': response.text}`.
 - **retry_options**: How many times to retry to HTTP request
-- **timeout**: Timeout in seconds for each request, if empty or 0 then requests will not time out.
-- **url**: URL to make request to.
-- **verify**: For https, check a host's SSL certificate. Default value for the block is `True`, the same as the requests library.
+- **timeout**: Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.
+- **url**: Target URL for the request.
+- **verify**: A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
 
 Inputs
 ------
@@ -89,7 +89,7 @@ Inputs
 
 Outputs
 -------
-- **default**: If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`.
+- **default**: If the response body is json, then the body is output as a new signal. If the response body is a list of json, then a list is output with each json dict in the body acting as a new signal. If the response body is not json, then the raw text of the response is included in the outgoing signal as the value of the key `raw`.
 
 Commands
 --------
