@@ -1,7 +1,7 @@
 {
   "nio/HTTPRequests": {
     "version": "0.1.0",
-    "description": "A Block that makes HTTP requests.  One request is made for every input signal. For each successful request, an output signal is created with the url that was hit.",
+    "description": "The HTTPRequests block sends an HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list. For each successful request, an outgoing signal is emitted that includes the response from the request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -19,7 +19,7 @@
       "data": {
         "title": "Parameters",
         "type": "ObjectType",
-        "description": "URL Parameters. Keys and Values are Expression Properties.",
+        "description": "URL parameters are key-value pairs that can appear in a URL path. Keys and values can be either simple strings or expression properties that use incoming signals.",
         "default": {
           "form_encode_data": false,
           "params": []
@@ -28,7 +28,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, include the original signal along with the output signal.",
+        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -37,25 +37,25 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Create custom header content. Headers and values can be either simple strings or expression properties that use incoming signals.",
         "default": []
       },
       "http_method": {
         "title": "HTTP Method",
         "type": "SelectType",
-        "description": "HTTP Method (e.g. GET|POST|PUT|DELETE).",
+        "description": "HTTP request method (e.g., GET|POST|PUT|DELETE).",
         "default": "get"
       },
       "require_json": {
         "title": "Require JSON Response",
         "type": "BoolType",
-        "description": "If True and response is not json, log warning and do not emit a signals. If False and response is not json, emit a signal of format {'raw': response.text}.",
+        "description": "If `True` and response is not json, log a warning and do not emit a signal. If `False` and response is not json, emit a signal with the format `{'raw': response.text}`.",
         "default": false
       },
       "retry_options": {
         "title": "Retry Options",
         "type": "ObjectType",
-        "description": "Configurables for retrying to connect on request failure.",
+        "description": "A selection of options to choose from when retrying to make a connection.",
         "default": {
           "max_retry": 5,
           "strategy": "linear",
@@ -66,19 +66,19 @@
       "timeout": {
         "title": "Request Timeout",
         "type": "IntType",
-        "description": "Timeout in seconds for each request, if empty or 0 then requests will not time out.",
+        "description": "Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.",
         "default": 0
       },
       "url": {
         "title": "URL Target",
         "type": "Type",
-        "description": "URL to make request to.",
+        "description": "Target URL for the request.",
         "default": "http://127.0.0.1:8181"
       },
       "verify": {
-        "title": "Verify host's SSL certificate",
+        "title": "Verify Host's SSL Certificate",
         "type": "BoolType",
-        "description": "For https, check a host's SSL certificate. Default value for the block is True, the same as the requests library.",
+        "description": "A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.",
         "default": true
       }
     },
@@ -89,14 +89,14 @@
     },
     "outputs": {
       "default": {
-        "description": "If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`."
+        "description": "If the response body is json, then the body is output as a new signal. If the response body is a list of json, then a list is output with each json dict in the body acting as a new signal. If the response body is not json, then the raw text of the response is included in the outgoing signal as the value of the key `raw`."
       }
     },
     "commands": {}
   },
   "nio/HTTPRequestsPostSignal": {
     "version": "0.1.1",
-    "description": "Similar to the HTTPRequests block.  One request is made for every signal input.  The input signal will be used as the body of the post request.",
+    "description": "The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block. One request is made for every signal input. The input signal will be used as the body of the post request.",
     "categories": [
       "Communication",
       "Web Data"
@@ -114,7 +114,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, the output signal will include the original signal sent into the block",
+        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -123,19 +123,19 @@
       "headers": {
         "title": "Headers",
         "type": "ListType",
-        "description": "Custom Headers. Keys and Values are Expression Properties.",
+        "description": "Create custom header content. Headers and values can be either simple strings or expression properties that use incoming signals.",
         "default": []
       },
       "http_method": {
         "title": "HTTP Method",
         "type": "SelectType",
-        "description": "HTTP Method (e.g. GET|POST|PUT|DELETE).",
+        "description": "HTTP request method (e.g., GET|POST|PUT|DELETE).",
         "default": "post"
       },
       "require_json": {
         "title": "Require JSON Response",
         "type": "BoolType",
-        "description": "If `True` and response is not json, log warning and do not emit a signals. If `False` and response is not json, emit a signal of format `{'raw': response.text}`.",
+        "description": "If `True` and response is not json, log a warning and do not emit a signal. If `False` and response is not json, emit a signal with the format `{'raw': response.text}`.",
         "default": false
       },
       "retry_options": {
@@ -152,19 +152,19 @@
       "timeout": {
         "title": "Request Timeout",
         "type": "IntType",
-        "description": "Timeout in seconds for each request, if empty or 0 then requests will not time out.",
+        "description": "Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.",
         "default": 0
       },
       "url": {
         "title": "URL Target",
         "type": "Type",
-        "description": "URL to make request to.",
+        "description": "Target URL for the request.",
         "default": "http://127.0.0.1:8181"
       },
       "verify": {
-        "title": "Verify host's SSL certificate",
+        "title": "Verify Host's SSL Certificate",
         "type": "BoolType",
-        "description": "For https, check a host's SSL certificate. Default value for the block is `True`, the same as the requests library.",
+        "description": "A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.",
         "default": true
       }
     },
@@ -175,7 +175,7 @@
     },
     "outputs": {
       "default": {
-        "description": "If the response body is json, then the body is output as a new Signal.  If the response body is a list of json, then a list is output with a new Signal for each json dict in the body.  If the response body is not json, then the raw text of the response is output on a new Signal as `raw`."
+        "description": "If the response body is json, then the body is output as a new signal. If the response body is a list of json, then a list is output with each json dict in the body acting as a new signal. If the response body is not json, then the raw text of the response is included in the outgoing signal as the value of the key `raw`."
       }
     },
     "commands": {}
