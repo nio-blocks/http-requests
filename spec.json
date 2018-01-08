@@ -1,6 +1,6 @@
 {
   "nio/HTTPRequests": {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "The HTTPRequests block sends an HTTP request for each incoming signal. If the incoming signal is a list of multiple signals, a request will be made for each item in the list. For each successful request, an outgoing signal is emitted that includes the response from the request.",
     "categories": [
       "Communication",

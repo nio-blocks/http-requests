@@ -32,7 +32,7 @@ class HTTPRequests(HTTPRequestsBase):
         headers (list(dict)): Custom headers.
 
     """
-    version = VersionProperty('0.1.0')
+    version = VersionProperty("0.1.1")
     data = ObjectProperty(Data, title="Parameters", default=Data())
 
     http_method = SelectProperty(
