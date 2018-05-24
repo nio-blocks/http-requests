@@ -52,11 +52,15 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
         title='HTTP Method'
     )
     headers = ListProperty(Header, title="Headers", default=[])
-    require_json = BoolProperty(title="Require JSON Response", default=False)
-    verify = BoolProperty(
-        title="Verify host's SSL certificate", default=True, visible=False
+    require_json = BoolProperty(
+        title="Require JSON Response", default=False, advanced=True
     )
-    timeout = IntProperty(title='Request Timeout', default=0, allow_none=True)
+    verify = BoolProperty(
+        title="Verify host's SSL certificate", default=True, advanced=True
+    )
+    timeout = IntProperty(
+        title='Request Timeout', default=0, allow_none=True, advanced=True
+    )
 
     def process_signals(self, signals):
         new_signals = []

@@ -13,7 +13,7 @@ Properties
 - **retry_options**: A selection of options to choose from when retrying to make a connection.
 - **timeout**: Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.
 - **url**: Target URL for the request.
-- **verify**: A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
+- **verify**: For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
 
 Inputs
 ------
@@ -67,6 +67,8 @@ http://{{$host}}:{{$port}}/services/{{$service_name}}/{{$block_name}}/{{$command
 and make sure to set the Basic Authentication for your nio instance. Anytime a signal is input to this block, the command will be called. One use case is to reset a counter block on a given interval.
 NOTE: This example is superseded by the [NioCommand](https://github.com/nio-blocks/nio_command) block.
 
+***
+
 HTTPRequestsPostSignal
 ======================
 The HTTPRequestsPostSignal block is similar to the [HTTPRequests](https://blocks.n.io/HTTPRequests) block. One request is made for every signal input. The input signal will be used as the body of the post request.
@@ -81,7 +83,7 @@ Properties
 - **retry_options**: How many times to retry to HTTP request
 - **timeout**: Amount of time, in seconds, to wait for a response. If empty or 0, requests will never time out.
 - **url**: Target URL for the request.
-- **verify**: A hidden property. For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
+- **verify**: For HTTPS, determines whether to check a host's SSL certificate. Default value for the block is `True`.
 
 Inputs
 ------
