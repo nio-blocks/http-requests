@@ -33,12 +33,13 @@ class HTTPRequests(HTTPRequestsBase):
 
     """
     version = VersionProperty("0.1.1")
-    data = ObjectProperty(Data, title="Parameters", default=Data())
+    data = ObjectProperty(Data, title="Parameters", default=Data(), order=3)
 
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.GET,
-        title='HTTP Method'
+        title='HTTP Method',
+        order=0
     )
 
     def _create_payload(self, signal):

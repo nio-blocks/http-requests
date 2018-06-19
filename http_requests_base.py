@@ -11,13 +11,13 @@ from nio.util.discovery import not_discoverable
 
 
 class Header(PropertyHolder):
-    header = Property(title='Header', allow_none=True)
-    value = Property(title='Value', allow_none=True)
+    header = Property(title='Header', allow_none=True, order=0)
+    value = Property(title='Value', allow_none=True, order=1)
 
 
 class BasicAuthCreds(PropertyHolder):
-    username = StringProperty(title='Username', allow_none=True)
-    password = StringProperty(title='Password', allow_none=True)
+    username = StringProperty(title='Username', allow_none=True, order=0)
+    password = StringProperty(title='Password', allow_none=True, order=1)
 
 
 class HTTPMethod(Enum):
@@ -42,24 +42,28 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
     """
     version = VersionProperty('0.1.0')
     url = Property(title='URL Target',
-                   default="http://127.0.0.1:8181")
+                   default="http://127.0.0.1:8181",
+                   order=1)
     basic_auth_creds = ObjectProperty(BasicAuthCreds,
                                       title='Credentials (BasicAuth)',
-                                      default=BasicAuthCreds())
+                                      default=BasicAuthCreds(),
+                                      advanced=True,
+                                      order=4)
     http_method = SelectProperty(
         HTTPMethod,
         default=HTTPMethod.GET,
-        title='HTTP Method'
+        title='HTTP Method',
+        order=0
     )
-    headers = ListProperty(Header, title="Headers", default=[])
+    headers = ListProperty(Header, title="Headers", default=[], order=2)
     require_json = BoolProperty(
-        title="Require JSON Response", default=False, advanced=True
+        title="Require JSON Response", default=False, advanced=True, order=5
     )
     verify = BoolProperty(
-        title="Verify host's SSL certificate", default=True, advanced=True
+        title="Verify host's SSL certificate", default=True, advanced=True, order=7
     )
     timeout = IntProperty(
-        title='Request Timeout', default=0, allow_none=True, advanced=True
+        title='Request Timeout', default=0, allow_none=True, advanced=True, order=6
     )
 
     def process_signals(self, signals):

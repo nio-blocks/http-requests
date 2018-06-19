@@ -20,5 +20,6 @@ class HTTPRequestsPostSignal(HTTPRequestsBase):
         HTTPMethod,
         default=HTTPMethod.POST,
         title='HTTP Method',
-        visible=False
+        visible=False,
+        order=0
     )
