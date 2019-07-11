@@ -1,5 +1,6 @@
 import json
 import requests
+from collections import defaultdict
 from enum import Enum
 
 from nio.block.base import Block
@@ -56,39 +57,69 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
         order=0
     )
     headers = ListProperty(Header, title="Headers", default=[], order=2)
+    one_request_per_signal = BoolProperty(
+        title="One Request per Signal",
+        default=True,
+        advanced=True,
+        order=8)
     require_json = BoolProperty(
-        title="Require JSON Response", default=False, advanced=True, order=5
-    )
+        title="Require JSON Response",
+        default=False,
+        advanced=True,
+        order=5)
     verify = BoolProperty(
-        title="Verify host's SSL certificate", default=True, advanced=True, order=7
-    )
+        title="Verify host's SSL certificate",
+        default=True,
+        advanced=True,
+        order=7)
     timeout = IntProperty(
-        title='Request Timeout', default=0, allow_none=True, advanced=True, order=6
-    )
+        title='Request Timeout',
+        default=0,
+        allow_none=True,
+        advanced=True,
+        order=6)
 
     def process_signals(self, signals):
+        if not self.one_request_per_signal():
+            auth = self._create_auth()
+            hosts = defaultdict(list)
+            for signal in signals:
+                url = self.url(signal)
+                timeout = self.timeout(signal) if self.timeout(signal) else None
+                hosts[url].append({
+                    'headers': self._create_headers(signal),
+                    'payload': self._create_payload(signal),
+                    'signal': signal,
+                    'timeout': timeout,
+                })
+            for host, reqs in hosts.items():
+                # build headers, timeout from the first signal in the payload
+                headers = reqs[0]['headers']
+                signal = reqs[0]['signal']
+                timeout = reqs[0]['timeout']
+                # combine payloads
+                payload = []
+                for req in reqs:
+                    payload.append(json.loads(req['payload']))
+                payload = json.dumps(payload)
+                self.notify_signals(self._make_request(
+                    signal, host, auth, headers, payload, timeout))
+            return
         new_signals = []
         for signal in signals:
-            new_sigs = self._make_request(signal)
+            url = self.url(signal)
+            auth = self._create_auth()
+            headers = self._create_headers(signal)
+            payload = self._create_payload(signal)
+            timeout = self.timeout(signal) if self.timeout(signal) else None
+            new_sigs = self._make_request(
+                signal, url, auth, headers, payload, timeout)
             if new_sigs:
                 new_signals.extend(new_sigs)
         if new_signals:
             self.notify_signals(new_signals)
 
-    def _make_request(self, signal):
-        try:
-            url = self.url(signal)
-        except Exception as e:
-            self.logger.warning(
-                "Failed to evaluate url {} for incoming signal {}: {}"
-                .format(self.url.value, signal.to_dict(), e)
-            )
-            return
-        timeout = self.timeout(signal) if self.timeout(signal) else None
-        auth = self._create_auth()
-        payload = self._create_payload(signal)
-        headers = self._create_headers(signal)
-
+    def _make_request(self, signal, url, auth, headers, payload, timeout):
         try:
             r = self.execute_with_retry(self._execute_request,
                                         url, auth, payload, headers, timeout)
