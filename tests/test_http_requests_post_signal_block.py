@@ -17,7 +17,6 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         responses.add(
             responses.POST,
             url,
-            json=sig,
             status=200)
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
