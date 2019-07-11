@@ -62,7 +62,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         self.assertEqual({'h': 'v'}, headers)
 
     def test_post(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequests()
         config = {
             "url": url,
@@ -86,7 +86,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
     def test_post2(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequests()
         config = {
             "url": url,
@@ -110,7 +110,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
     def test_post_form(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequests()
         config = {
             "url": url,
@@ -135,7 +135,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.stop()
 
     def test_post_expr(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequests()
         config = {
             "url": url,
@@ -158,7 +158,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     def test_resp_attr(self):
         ''' Hidden attr '_resp' is added to signals '''
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         block = HTTPRequests()
         config = {"url": url}
         self.configure_block(block, config)
@@ -172,7 +172,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_default_configuration(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value={'url': url})
@@ -199,7 +199,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_enriched_signals(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value={'url': url})
@@ -231,7 +231,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_timeout(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value={'url': url})
@@ -259,7 +259,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_multiple_sigs(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value={'url': url})
@@ -292,8 +292,8 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_with_enrich_signal_list_resp(self, mock_get):
-        url = "http://httpbin.org/get"
-        url2 = "http://httpbin.org/get2"
+        url = "https://httpbin.org/get"
+        url2 = "https://httpbin.org/get2"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value=[{'url': url}, {'url': url2}])
@@ -323,7 +323,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
     @patch('requests.get')
     def test_request_exceptions(self, mock_get):
         from requests.exceptions import Timeout
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         block = HTTPRequests()
         resp = MagicMock()
         resp.status_code = 200

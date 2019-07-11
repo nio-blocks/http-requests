@@ -21,7 +21,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_with_response_body(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value={'url': url})
@@ -39,7 +39,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_with_non_json_resp(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(side_effect=ValueError('fail', 'data', 1))
@@ -60,7 +60,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_with_non_json_resp_fail(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(side_effect=ValueError('fail', 'data', 1))
@@ -81,8 +81,8 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_with_list_response_body(self, mock_get):
-        url = "http://httpbin.org/get"
-        url2 = "http://httpbin.org/get2"
+        url = "https://httpbin.org/get"
+        url2 = "https://httpbin.org/get2"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(return_value=[{'url': url}, {'url': url2}])
@@ -101,7 +101,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_no_response_body(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 200
         resp.json = MagicMock(side_effect=Exception('bad json'))
@@ -125,7 +125,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
     @patch('requests.get')
     def test_get_bad_status(self, mock_get):
-        url = "http://httpbin.org/get"
+        url = "https://httpbin.org/get"
         resp = MagicMock()
         resp.status_code = 400
         resp.json = MagicMock(return_value={})
@@ -143,7 +143,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.stop()
 
         block.logger.warning.assert_called_with(
-            'HTTPMethod.GET request to http://httpbin.org/get '
+            'HTTPMethod.GET request to https://httpbin.org/get '
             'returned with response code: 400'
         )
         self.assertTrue(mock_get.called)
@@ -151,7 +151,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
                          signals[0].to_dict())
 
     def test_post(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "POST",
@@ -170,7 +170,7 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         block.stop()
 
     def test_post2(self):
-        url = "http://httpbin.org/post"
+        url = "https://httpbin.org/post"
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
             "http_method": "POST",
