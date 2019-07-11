@@ -294,8 +294,7 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([Signal({'input_attr': 'value'})])
         self.assertTrue(mock_get.called)
         self.assertEqual(
-            # this isn't right, but make it pass
-            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url2)
+            self.last_notified[DEFAULT_TERMINAL][0].response['url'], url)
         self.assertEqual(
             self.last_notified[DEFAULT_TERMINAL][1].response['url'], url2)
         self.assertEqual(
