@@ -41,7 +41,7 @@ class HTTPRequestsBase(Retry, EnrichSignals, Block):
         http_method (select): HTTP method (ex. GET, POST,
             PUT, DELETE, etc).
     """
-    version = VersionProperty('0.1.0')
+    version = VersionProperty('0.2.0')
     url = Property(title='URL Target',
                    default="http://127.0.0.1:8181",
                    order=1)
