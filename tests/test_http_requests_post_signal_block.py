@@ -1,3 +1,4 @@
+import json
 import responses
 
 from nio.block.terminals import DEFAULT_TERMINAL
@@ -24,10 +25,8 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         })
         block.start()
         block.process_signals([Signal(sig)])
-        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
         self.assertEqual(url, responses.calls[0].request.url)
-        self.assertEqual('value1', signals[0]['key1'])
-        self.assertEqual('value2', signals[0]['key2'])
+        self.assertDictEqual(sig, json.loads(responses.calls[0].request.body))
         block.stop()
 
     @responses.activate
@@ -37,7 +36,6 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         responses.add(
             responses.POST,
             url,
-            json=sig,
             status=200)
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
@@ -45,8 +43,6 @@ class TestHTTPRequestsPostSignal(NIOBlockTestCase):
         })
         block.start()
         block.process_signals([Signal(sig)])
-        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
         self.assertEqual(url, responses.calls[0].request.url)
-        self.assertEqual('text', signals[0]['string'])
-        self.assertEqual(1, signals[0]['int'])
+        self.assertDictEqual(sig, json.loads(responses.calls[0].request.body))
         block.stop()

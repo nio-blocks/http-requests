@@ -1,3 +1,4 @@
+import json
 import responses
 from unittest.mock import MagicMock, patch
 
@@ -62,7 +63,6 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         responses.add(
             responses.POST,
             url,
-            json={param['key']: param['value'] for param in params},
             status=200)
         block = HTTPRequests()
         config = {
@@ -75,30 +75,27 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         self.configure_block(block, config)
         block.start()
         block.process_signals([Signal()])
-        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
         self.assertEqual(url, responses.calls[0].request.url)
-        self.assertEqual('value1', signals[0]['key1'])
-        self.assertEqual('value2', signals[0]['key2'])
+        self.assertDictEqual(
+            {param['key']: param['value'] for param in params},
+            json.loads(responses.calls[0].request.body))
         block.stop()
 
     @responses.activate
     def test_post_form(self):
         url = 'http://foo/'
-        params = [
-            {'key': 'key1', 'value': 'value1'},
-            {'key': 'key2', 'value': 'value2'},
-        ]
         responses.add(
             responses.POST,
             url,
-            json={param['key']: param['value'] for param in params},
             status=200)
         block = HTTPRequests()
         config = {
             'url': url,
             'http_method': 'POST',
             'data': {
-                'params': params,
+                'params': [
+                    {'foo': 'bar'},
+                ],  # raises KeyError if not given with form_encode_data = True
                 'form_encode_data': True
             }
         }
@@ -119,7 +116,6 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         responses.add(
             responses.POST,
             url,
-            json={'greeting': 'cheers'},
             status=200)
         block = HTTPRequests()
         config = {
@@ -134,10 +130,10 @@ class TestHTTPRequestsBlock(NIOBlockTestCase):
         block.process_signals([
             Signal({'key': 'greeting', 'val': 'cheers'}),
         ])
-        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
         self.assertEqual(url, responses.calls[0].request.url)
-        self.assertEqual(
-            'cheers', signals[0]['greeting'])
+        self.assertDictEqual(
+            {'greeting': 'cheers'},
+            json.loads(responses.calls[0].request.body))
         block.stop()
 
     @responses.activate
