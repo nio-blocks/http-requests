@@ -1,5 +1,4 @@
-from threading import Event
-from unittest.mock import patch, MagicMock
+import responses
 
 from nio.block.terminals import DEFAULT_TERMINAL
 from nio.signal.base import Signal
@@ -10,45 +9,44 @@ from ..http_requests_post_signal_block import HTTPRequestsPostSignal
 
 class TestHTTPRequestsPostSignal(NIOBlockTestCase):
 
-    def setUp(self):
-        super().setUp()
-        self.event = Event()
-
-    def signals_notified(self, block, signals, output_id):
-        super().signals_notified(block, signals, output_id)
-        self.event.set()
-        self.event.clear()
-
+    @responses.activate
     def test_post(self):
-        url = "https://httpbin.org/post"
+        url = 'http://foo/'
+        sig = {'key1': 'value1', 'key2': 'value2'}
+        responses.add(
+            responses.POST,
+            url,
+            json=sig,
+            status=200)
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
-            "url": url,
+            'url': url,
         })
         block.start()
-        block.process_signals(
-            [Signal({'key1': 'value1', 'key2': 'value2'})]
-        )
-        self.event.wait(2)
-        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual(
-            'value1', self.last_notified[DEFAULT_TERMINAL][0].json['key1'])
-        self.assertEqual(
-            'value2', self.last_notified[DEFAULT_TERMINAL][0].json['key2'])
+        block.process_signals([Signal(sig)])
+        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
+        self.assertEqual(url, responses.calls[0].request.url)
+        self.assertEqual('value1', signals[0]['key1'])
+        self.assertEqual('value2', signals[0]['key2'])
         block.stop()
 
+    @responses.activate
     def test_post2(self):
-        url = "https://httpbin.org/post"
+        url = 'http://foo/'
+        sig = {'string': 'text', 'int': 1}
+        responses.add(
+            responses.POST,
+            url,
+            json=sig,
+            status=200)
         block = HTTPRequestsPostSignal()
         self.configure_block(block, {
-            "url": url,
+            'url': url,
         })
         block.start()
-        block.process_signals([Signal({'string': 'text', 'int': 1})])
-        self.event.wait(2)
-        self.assertEqual(url, self.last_notified[DEFAULT_TERMINAL][0].url)
-        self.assertEqual(
-            'text', self.last_notified[DEFAULT_TERMINAL][0].json['string'])
-        self.assertEqual(
-            1, self.last_notified[DEFAULT_TERMINAL][0].json['int'])
+        block.process_signals([Signal(sig)])
+        signals = [s.to_dict() for s in self.last_notified[DEFAULT_TERMINAL]]
+        self.assertEqual(url, responses.calls[0].request.url)
+        self.assertEqual('text', signals[0]['string'])
+        self.assertEqual(1, signals[0]['int'])
         block.stop()
